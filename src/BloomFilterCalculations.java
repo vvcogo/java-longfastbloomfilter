@@ -1,5 +1,3 @@
-
-
 public class BloomFilterCalculations {
 
 	public static final long MAX_BIT_ARRAY_SIZE = 137438953408L; //(long)Integer.MAX_VALUE*64;
@@ -40,7 +38,7 @@ public class BloomFilterCalculations {
 	
     /**
      * A wrapper class that holds two key parameters for a Bloom Filter: the
-     * number of hash functions used, and the number of buckets per element used.
+     * number of hash functions used, and the size of the bit set.
      */
     public static class BloomFilterSpecification {
         final int K; // number of hash functions.
