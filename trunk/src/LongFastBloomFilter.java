@@ -1,5 +1,3 @@
-
-
 public class LongFastBloomFilter {
 
 	private LongBitSet longBitSet;
@@ -27,11 +25,12 @@ public class LongFastBloomFilter {
 	}
 	
 	/**
-	 * Returns the current false positive probability of the bloom filter based
-	 * on how many elements have been added to the filter.  WARNING: this assumes
-	 * that only unique values have been added to the bloom filter. 'currentNumElements'
-	 * is blindly incremented every time an element is added to the filter.  If duplicate
-	 * elements are added this will report a higher false positive probability than 
+	 * Returns the current false positive probability of the bloom filter based on how many 
+	 * elements have been added to the filter.  
+	 * 
+	 * WARNING: this assumes that only unique values have been added to the bloom filter. 
+	 * 'currentNumElements' is blindly incremented every time an element is added to the filter.  
+	 * If duplicate elements are added this will report a higher false positive probability than 
 	 * actually exists.
 	 */
 	public double getCurrentFalsePositiveProbability() {
@@ -39,6 +38,10 @@ public class LongFastBloomFilter {
         return Math.pow((1 - Math.exp(-k * currentNumElements / (double)longBitSet.size())), k);
     }
 
+	public long getCurrentNumberOfElements() {
+		return currentNumElements;
+	}
+	
 	public long getBitSetSize() {
 		return longBitSet.size();
 	}

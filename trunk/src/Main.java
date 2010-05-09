@@ -1,5 +1,3 @@
-
-
 public class Main {
 
 	public static void main(String[] args) {
@@ -7,7 +5,6 @@ public class Main {
 		double falsePosProb = .01;
 		
 		LongFastBloomFilter longFastBloomFilter = LongFastBloomFilter.getFilter(expectedNumberOfElements, falsePosProb);
-		
 		
 		System.out.println("Created bloom filter, expecting " + expectedNumberOfElements + " elements.");
 		System.out.println("Bit array size, m = " + longFastBloomFilter.getBitSetSize());
