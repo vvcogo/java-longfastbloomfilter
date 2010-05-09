@@ -51,24 +51,10 @@ public class LongBitSet implements Cloneable, Serializable {
     }
 
     /**
-     * Sets the bit at the specified index to <code>true</code>.
-     *
-     * @param     bitIndex   a bit index.
-     * @exception IndexOutOfBoundsException if the specified index is negative.
-     * @since     JDK1.0
-     */
-	public void set(long bitIndex) {
-		int wordIndex = wordIndex(bitIndex);
-
-		words[wordIndex] |= (1L << bitIndex); // Restores invariants
-	}
-
-    /**
      * Sets the bit specified by the index to <code>false</code>.
      *
      * @param     bitIndex   the index of the bit to be cleared.
      * @exception IndexOutOfBoundsException if the specified index is negative.
-     * @since     JDK1.0
      */
 	public void clear(long bitIndex) {
 		if (bitIndex < 0)
@@ -82,13 +68,30 @@ public class LongBitSet implements Cloneable, Serializable {
     /**
      * Sets all of the bits in this BitSet to <code>false</code>.
      *
-     * @since   1.4
      */
-/*    public void clear() {
-        while (wordsInUse > 0)
-            words[--wordsInUse] = 0;
-    }*/
+    public void clear() {
+        for (int word = 0; word < words.length; word++) {
+            words[word] = 0;
+        }
+    }
 
+    /**
+     * Create a clone of this bit set, that is an instance of the same
+     * class and contains the same elements.  But it doesn't change when
+     * this bit set changes.
+     *
+     * @return the clone of this object.
+     */
+	public Object clone() {
+		try {
+			LongBitSet lbs = (LongBitSet) super.clone();
+			lbs.words = (long[]) words.clone();
+			return lbs;
+		} catch (CloneNotSupportedException e) {
+			// Impossible to get here.
+			return null;
+		}
+	}
     /**
      * Returns the value of the bit with the specified index. The value
      * is <code>true</code> if the bit with the index <code>bitIndex</code>
@@ -104,6 +107,47 @@ public class LongBitSet implements Cloneable, Serializable {
 		return ((words[wordIndex] & (1L << bitIndex)) != 0);
 	}
 
+	/**
+     * Sets the bit at the specified index to <code>true</code>.
+     *
+     * @param     bitIndex   a bit index.
+     * @exception IndexOutOfBoundsException if the specified index is negative.
+     */
+	public void set(long bitIndex) {
+		int wordIndex = wordIndex(bitIndex);
+
+		words[wordIndex] |= (1L << bitIndex);
+	}
+	
+	/**
+	 * Sets the bits between from (inclusive) and to (exclusive) to true.
+	 * 
+	 * @param from
+	 *            the start range (inclusive)
+	 * @param to
+	 *            the end range (exclusive)
+	 * @throws IndexOutOfBoundsException
+	 *             if from &lt; 0 || from &gt; to
+	 */
+	public void set(int from, int to) {
+		if (from < 0 || from > to)
+			throw new IndexOutOfBoundsException();
+		if (from == to)
+			return;
+		int lo_offset = from >>> ADDRESS_BITS_PER_WORD;
+		int hi_offset = to >>> ADDRESS_BITS_PER_WORD;
+
+		if (lo_offset == hi_offset) {
+			words[hi_offset] |= (-1L << from) & ((1L << to) - 1);
+			return;
+		}
+
+		words[lo_offset] |= -1L << from;
+		words[hi_offset] |= (1L << to) - 1;
+		for (int i = lo_offset + 1; i < hi_offset; i++)
+			words[i] = -1;
+	}
+	  
     /**
      * Returns the number of bits of space actually in use by this
      * <code>BitSet</code> to represent bit values.

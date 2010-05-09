@@ -19,7 +19,7 @@ public class Main {
 		double addTime = (System.currentTimeMillis()- start)/1000.0;
 		System.out.println("lbf add time: " + addTime + " seconds");
 		System.out.println(longFastBloomFilter.getCurrentFalsePositiveProbability());
-		
+
 		System.out.println("=========================================================");
 		int falsePositives = 0;
 		
@@ -33,7 +33,7 @@ public class Main {
 		System.out.println("lbf contains time: " + addTime + " seconds");
 		System.out.println("falseProb for lbf: " + falsePositives/(double)expectedNumberOfElements);
 
-		
+		longFastBloomFilter.getLongBitSet().set(0, 10522704);
 		System.out.println("=========================================================");
 		int falseNegative = 0;
 		start = System.currentTimeMillis();
