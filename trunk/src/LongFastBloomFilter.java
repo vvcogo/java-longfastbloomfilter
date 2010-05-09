@@ -1,3 +1,7 @@
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+
 public class LongFastBloomFilter {
 
 	private LongBitSet longBitSet;
@@ -8,7 +12,21 @@ public class LongFastBloomFilter {
 	private long[] bitSetIndexes;
 	private long hash1;
 	private long hash2;
-	  
+	
+	static ICompactSerializer<LongFastBloomFilter> serializer = new LongFastBloomFilterSerializer();
+	
+	public static ICompactSerializer<LongFastBloomFilter> serializer() {
+        return serializer;
+    }
+	
+	public LongFastBloomFilter(int k, LongBitSet longBitSet) {
+		this.k = k;
+		this.longBitSet = longBitSet;
+		currentNumElements = 0;
+		bitSetIndexes = new long[k];
+		murmurHash = new MurmurHash();
+	}
+	
 	public LongFastBloomFilter(int k, long bitSetSize) {
 		this.k = k;
 		currentNumElements = 0;
@@ -50,6 +68,10 @@ public class LongFastBloomFilter {
 		return k;
 	}
 
+	public LongBitSet getLongBitSet() {
+		return longBitSet;
+	}
+	
 	private void setHashValues(byte[] element) {
 		hash1 = murmurHash.hash(element, element.length, 0);
         hash2 = murmurHash.hash(element, element.length, hash1);
@@ -80,4 +102,17 @@ public class LongFastBloomFilter {
 		}
 		return true;
 	}
+}
+
+class LongFastBloomFilterSerializer implements ICompactSerializer<LongFastBloomFilter> {
+    public void serialize(LongFastBloomFilter lbf, DataOutputStream dos) throws IOException {
+        dos.writeInt(lbf.getNumHashFunctions());
+        LongBitSetSerializer.serialize(lbf.getLongBitSet(), dos);
+    }
+
+    public LongFastBloomFilter deserialize(DataInputStream dis) throws IOException {
+        int hashes = dis.readInt();
+        LongBitSet lbf = LongBitSetSerializer.deserialize(dis);
+        return new LongFastBloomFilter(hashes, lbf);
+    }
 }
