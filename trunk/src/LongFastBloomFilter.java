@@ -72,6 +72,11 @@ public class LongFastBloomFilter {
 		return longBitSet;
 	}
 	
+	public void clear() {
+		currentNumElements = 0;
+		longBitSet.clear();
+    }
+	
 	private void setHashValues(byte[] element) {
 		hash1 = murmurHash.hash(element, element.length, 0);
         hash2 = murmurHash.hash(element, element.length, hash1);
