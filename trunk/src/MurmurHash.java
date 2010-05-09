@@ -1,4 +1,3 @@
-
 public class MurmurHash {
 
 	private static final long M = 0xc6a4a7935bd1e995L;

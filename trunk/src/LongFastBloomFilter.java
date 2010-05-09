@@ -12,8 +12,8 @@ public class LongFastBloomFilter {
 	private long hash2;
 	  
 	public LongFastBloomFilter(int k, long bitSetSize) {
-		this.currentNumElements = 0;
 		this.k = k;
+		currentNumElements = 0;
 		longBitSet = new LongBitSet(bitSetSize);
 		bitSetIndexes = new long[k];
 		murmurHash = new MurmurHash();
