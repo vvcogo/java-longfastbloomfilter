@@ -1,36 +1,8 @@
+import java.io.Serializable;
 
-/**
- * This class implements a vector of bits that grows as needed. Each
- * component of the bit set has a <code>boolean</code> value. The
- * bits of a <code>BitSet</code> are indexed by nonnegative integers.
- * Individual indexed bits can be examined, set, or cleared. One
- * <code>BitSet</code> may be used to modify the contents of another
- * <code>BitSet</code> through logical AND, logical inclusive OR, and
- * logical exclusive OR operations.
- * <p>
- * By default, all bits in the set initially have the value
- * <code>false</code>.
- * <p>
- * Every bit set has a current size, which is the number of bits
- * of space currently in use by the bit set. Note that the size is
- * related to the implementation of a bit set, so it may change with
- * implementation. The length of a bit set relates to logical length
- * of a bit set and is defined independently of implementation.
- * <p>
- * Unless otherwise noted, passing a null parameter to any of the
- * methods in a <code>BitSet</code> will result in a
- * <code>NullPointerException</code>.
- *
- * <p>A <code>BitSet</code> is not safe for multithreaded use without
- * external synchronization.
- *
- * @author  Arthur van Hoff
- * @author  Michael McCloskey
- * @author  Martin Buchholz
- * @version 1.67, 04/07/06
- * @since   JDK1.0
- */
-public class LongBitSet {
+public class LongBitSet implements Cloneable, Serializable {
+
+	private static final long serialVersionUID = 7997698588986878753L;
     /*
      * BitSets are packed into arrays of "words."  Currently a word is
      * a long, which consists of 64 bits, requiring 6 address bits.
