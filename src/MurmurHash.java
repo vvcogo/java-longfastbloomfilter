@@ -3,7 +3,7 @@ public class MurmurHash {
 	private static final long M = 0xc6a4a7935bd1e995L;
 	private static final int R = 47;
 	
-	public long hash( final byte[] data, int length, long seed) {
+	public long hash(final byte[] data, int length, long seed) {
 		long h = (seed&0xffffffffL)^(length*M);
 
 		int length8 = length/8;
