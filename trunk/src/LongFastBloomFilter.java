@@ -27,19 +27,42 @@ public class LongFastBloomFilter {
 		murmurHash = new MurmurHash();
 	}
 	
-	public LongFastBloomFilter(int k, long bitSetSize) {
-		this.k = k;
-		currentNumElements = 0;
-		longBitSet = new LongBitSet(bitSetSize);
-		bitSetIndexes = new long[k];
-		murmurHash = new MurmurHash();
-	}
-	
 	public static LongFastBloomFilter getFilter(long predictedNumElements, double falsePositiveProbability) {
 		BloomFilterCalculations.BloomFilterSpecification bloomFilterSpec = BloomFilterCalculations.computeBloomFilterSpec(predictedNumElements, falsePositiveProbability);
 		bloomFilterSpec = BloomFilterCalculations.optimizeBloomFilterForSpeed(bloomFilterSpec.K, bloomFilterSpec.bitSetSize, predictedNumElements, falsePositiveProbability);
 		
-		return new LongFastBloomFilter(bloomFilterSpec.K, bloomFilterSpec.bitSetSize);
+		return new LongFastBloomFilter(bloomFilterSpec.K, new LongBitSet(bloomFilterSpec.bitSetSize));
+	}
+	
+	private void setHashValues(byte[] element) {
+		hash1 = murmurHash.hash(element, element.length, 0);
+        hash2 = murmurHash.hash(element, element.length, hash1);
+	}
+	
+	private void setBitSetIndexes(byte[] element) {
+		for (int i = 0; i < k; i++) {
+        	bitSetIndexes[i] = (hash1 + i * hash2) % longBitSet.size();
+        }
+    }
+	
+	public void add(byte[] element) {
+		setHashValues(element);
+		setBitSetIndexes(element);
+		for (long bitSetIndex : bitSetIndexes) {
+			longBitSet.set((bitSetIndex < 0) ? bitSetIndex + longBitSet.size() : bitSetIndex);
+		}
+		currentNumElements++;
+	}
+	
+	public boolean contains(byte[] element) {
+		setHashValues(element);
+		for (int i = 0; i < k; i++) {
+			final long index = (hash1 + i * hash2) % longBitSet.size();
+			if (!longBitSet.get((index < 0) ? index + longBitSet.size() : index)) {
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	/**
@@ -76,37 +99,6 @@ public class LongFastBloomFilter {
 		currentNumElements = 0;
 		longBitSet.clear();
     }
-	
-	private void setHashValues(byte[] element) {
-		hash1 = murmurHash.hash(element, element.length, 0);
-        hash2 = murmurHash.hash(element, element.length, hash1);
-	}
-	
-	private void setBitSetIndexes(byte[] element) {
-		for (int i = 0; i < k; i++) {
-        	bitSetIndexes[i] = (hash1 + i * hash2) % longBitSet.size();
-        }
-    }
-	
-	public void add(byte[] element) {
-		setHashValues(element);
-		setBitSetIndexes(element);
-		for (long bitSetIndex : bitSetIndexes) {
-			longBitSet.set((bitSetIndex < 0) ? bitSetIndex + longBitSet.size() : bitSetIndex);
-		}
-		currentNumElements++;
-	}
-	
-	public boolean contains(byte[] element) {
-		setHashValues(element);
-		for (int i = 0; i < k; i++) {
-			final long index = (hash1 + i * hash2) % longBitSet.size();
-			if (!longBitSet.get((index < 0) ? index + longBitSet.size() : index)) {
-				return false;
-			}
-		}
-		return true;
-	}
 }
 
 class LongFastBloomFilterSerializer implements ICompactSerializer<LongFastBloomFilter> {
