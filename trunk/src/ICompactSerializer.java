@@ -26,7 +26,7 @@ import java.io.IOException;
 
 public interface ICompactSerializer<T>
 {
-	/**
+    /**
      * Serialize the specified type into the specified DataOutputStream instance.
      * @param t type that needs to be serialized
      * @param dos DataOutput into which serialization needs to happen.
