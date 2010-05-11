@@ -55,7 +55,7 @@ public class BloomFilterCalculations {
         long maxNumElements = BloomFilterCalculations.maxNumberOfElementsForDesiredFalsePositiveProbability(p);
         if (n >= maxNumElements) {
             System.out.println("Max element size for a desired false positive probability of " + p + " is " + maxNumElements + ".");
-            System.out.println("Setting max predicted element size to " + maxNumElements);
+            System.out.println("Setting predicted number of elements to " + maxNumElements);
 
             n = maxNumElements;
             m = MAX_BIT_ARRAY_SIZE;
@@ -78,10 +78,11 @@ public class BloomFilterCalculations {
         // bit set size is larger than MAX_BITSET_SIZE_CHANGE of the previously
         // calculated optimal value of the bitSetSize.
         long tmpBitSetSize = m;
-        long maxChange = (long)(MAX_BITSET_SIZE_CHANGE * m) + m;
+        long maxChange = (long) (MAX_BITSET_SIZE_CHANGE * m + m);
         int tmpK = k-1;
-        while (k > 0) {
-            tmpBitSetSize = (long) ((-tmpK*n)/Math.log((-Math.pow(p, 1/(double)tmpK))+1));
+        while (tmpK > 0) {
+        	// (-k * n) / ln(-p^(1/k) + 1)
+            tmpBitSetSize = (long) ((-tmpK*n)/Math.log(-Math.pow(p,1/(double)tmpK)+1));
 
             if (tmpBitSetSize < MAX_BIT_ARRAY_SIZE && tmpBitSetSize < maxChange) {
                 m = tmpBitSetSize;
