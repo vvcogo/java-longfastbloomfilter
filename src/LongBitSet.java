@@ -2,14 +2,14 @@ import java.io.Serializable;
 
 public class LongBitSet implements Cloneable, Serializable {
 
-	private static final long serialVersionUID = 7997698588986878753L;
+    private static final long serialVersionUID = 7997698588986878753L;
     /*
      * BitSets are packed into arrays of "words."  Currently a word is
      * a long, which consists of 64 bits, requiring 6 address bits.
      * The choice of word size is determined purely by performance concerns.
      */
     private final static int ADDRESS_BITS_PER_WORD = 6;
-    
+
     /**
      * The internal field corresponding to the serialField "bits".
      */
@@ -19,7 +19,7 @@ public class LongBitSet implements Cloneable, Serializable {
      * The number of bits in use
      */
     private long size = 0;
-    
+
     /**
      * Given a bit index, return word index containing it.
      */
@@ -37,17 +37,17 @@ public class LongBitSet implements Cloneable, Serializable {
      *               is negative.
      */
     public LongBitSet(long nbits) {
-		// nbits can't be negative; size 0 is OK
-		if (nbits < 0)
-			throw new NegativeArraySizeException("nbits < 0: " + nbits);
+        // nbits can't be negative; size 0 is OK
+        if (nbits < 0)
+            throw new NegativeArraySizeException("nbits < 0: " + nbits);
 
-		initWords(nbits);
-		
-		this.size = nbits;
-	}
+        initWords(nbits);
+
+        this.size = nbits;
+    }
 
     private void initWords(long nbits) {
-    	words = new long[wordIndex(nbits-1) + 1];
+        words = new long[wordIndex(nbits-1) + 1];
     }
 
     /**
@@ -56,14 +56,14 @@ public class LongBitSet implements Cloneable, Serializable {
      * @param     bitIndex   the index of the bit to be cleared.
      * @exception IndexOutOfBoundsException if the specified index is negative.
      */
-	public void clear(long bitIndex) {
-		if (bitIndex < 0)
-			throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
+    public void clear(long bitIndex) {
+        if (bitIndex < 0)
+            throw new IndexOutOfBoundsException("bitIndex < 0: " + bitIndex);
 
-		int wordIndex = wordIndex(bitIndex);
+        int wordIndex = wordIndex(bitIndex);
 
-		words[wordIndex] &= ~(1L << bitIndex);
-	}
+        words[wordIndex] &= ~(1L << bitIndex);
+    }
 
     /**
      * Sets all of the bits in this BitSet to <code>false</code>.
@@ -82,16 +82,16 @@ public class LongBitSet implements Cloneable, Serializable {
      *
      * @return the clone of this object.
      */
-	public Object clone() {
-		try {
-			LongBitSet lbs = (LongBitSet) super.clone();
-			lbs.words = (long[]) words.clone();
-			return lbs;
-		} catch (CloneNotSupportedException e) {
-			// Impossible to get here.
-			return null;
-		}
-	}
+    public Object clone() {
+        try {
+            LongBitSet lbs = (LongBitSet) super.clone();
+            lbs.words = (long[]) words.clone();
+            return lbs;
+        } catch (CloneNotSupportedException e) {
+            // Impossible to get here.
+            return null;
+        }
+    }
     /**
      * Returns the value of the bit with the specified index. The value
      * is <code>true</code> if the bit with the index <code>bitIndex</code>
@@ -102,52 +102,52 @@ public class LongBitSet implements Cloneable, Serializable {
      * @return    the value of the bit with the specified index.
      * @exception IndexOutOfBoundsException if the specified index is negative.
      */
-	public boolean get(long bitIndex) {
-		int wordIndex = wordIndex(bitIndex);
-		return ((words[wordIndex] & (1L << bitIndex)) != 0);
-	}
+    public boolean get(long bitIndex) {
+        int wordIndex = wordIndex(bitIndex);
+        return ((words[wordIndex] & (1L << bitIndex)) != 0);
+    }
 
-	/**
+    /**
      * Sets the bit at the specified index to <code>true</code>.
      *
      * @param     bitIndex   a bit index.
      * @exception IndexOutOfBoundsException if the specified index is negative.
      */
-	public void set(long bitIndex) {
-		int wordIndex = wordIndex(bitIndex);
+    public void set(long bitIndex) {
+        int wordIndex = wordIndex(bitIndex);
 
-		words[wordIndex] |= (1L << bitIndex);
-	}
-	
-	/**
-	 * Sets the bits between from (inclusive) and to (exclusive) to true.
-	 * 
-	 * @param from
-	 *            the start range (inclusive)
-	 * @param to
-	 *            the end range (exclusive)
-	 * @throws IndexOutOfBoundsException
-	 *             if from &lt; 0 || from &gt; to
-	 */
-	public void set(int from, int to) {
-		if (from < 0 || from > to)
-			throw new IndexOutOfBoundsException();
-		if (from == to)
-			return;
-		int lo_offset = from >>> ADDRESS_BITS_PER_WORD;
-		int hi_offset = to >>> ADDRESS_BITS_PER_WORD;
+        words[wordIndex] |= (1L << bitIndex);
+    }
 
-		if (lo_offset == hi_offset) {
-			words[hi_offset] |= (-1L << from) & ((1L << to) - 1);
-			return;
-		}
+    /**
+     * Sets the bits between from (inclusive) and to (exclusive) to true.
+     *
+     * @param from
+     *            the start range (inclusive)
+     * @param to
+     *            the end range (exclusive)
+     * @throws IndexOutOfBoundsException
+     *             if from &lt; 0 || from &gt; to
+     */
+    public void set(int from, int to) {
+        if (from < 0 || from > to)
+            throw new IndexOutOfBoundsException();
+        if (from == to)
+            return;
+        int lo_offset = from >>> ADDRESS_BITS_PER_WORD;
+        int hi_offset = to >>> ADDRESS_BITS_PER_WORD;
 
-		words[lo_offset] |= -1L << from;
-		words[hi_offset] |= (1L << to) - 1;
-		for (int i = lo_offset + 1; i < hi_offset; i++)
-			words[i] = -1;
-	}
-	  
+        if (lo_offset == hi_offset) {
+            words[hi_offset] |= (-1L << from) & ((1L << to) - 1);
+            return;
+        }
+
+        words[lo_offset] |= -1L << from;
+        words[hi_offset] |= (1L << to) - 1;
+        for (int i = lo_offset + 1; i < hi_offset; i++)
+            words[i] = -1;
+    }
+
     /**
      * Returns the number of bits of space actually in use by this
      * <code>BitSet</code> to represent bit values.
@@ -156,7 +156,7 @@ public class LongBitSet implements Cloneable, Serializable {
      * @return  the number of bits currently in this bit set.
      */
     public long size() {
-    	return size;
+        return size;
     }
 
 }
