@@ -1,3 +1,4 @@
+package long_bloomfilter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -27,8 +28,10 @@ public class LongFastBloomFilter {
         murmurHash = new MurmurHash();
     }
 
-    public static LongFastBloomFilter getFilter(long predictedNumElements, double falsePositiveProbability) {
+     // [NOTE1] Added the maxBitSetSize parameter to receive the value to be used as the performance optimization
+    public static LongFastBloomFilter getFilter(long predictedNumElements, double falsePositiveProbability, double maxBitSetSizeChange) {
         BloomFilterCalculations.BloomFilterSpecification bloomFilterSpec = BloomFilterCalculations.computeBloomFilterSpec(predictedNumElements, falsePositiveProbability);
+        bloomFilterSpec.setMaxBitSetSizeChange(maxBitSetSizeChange);
         bloomFilterSpec = BloomFilterCalculations.optimizeBloomFilterForSpeed(bloomFilterSpec.K, bloomFilterSpec.bitSetSize, predictedNumElements, falsePositiveProbability);
 
         return new LongFastBloomFilter(bloomFilterSpec.K, new LongBitSet(bloomFilterSpec.bitSetSize));
@@ -45,7 +48,8 @@ public class LongFastBloomFilter {
         }
     }
 
-    public void add(byte[] element) {
+    // [NOTE2] Modified this method to synchronized (avoid race conditions)
+    public synchronized void add(byte[] element) {
         setHashValues(element);
         setBitSetIndexes(element);
         for (long bitSetIndex : bitSetIndexes) {
@@ -64,18 +68,19 @@ public class LongFastBloomFilter {
         }
         return true;
     }
+    
+     // [NOTE3] Created this method (thread-safe version of contains)
+    public boolean contains(byte[] element, long theHash1, long theHash2) {
+        for (int i = 0; i < k; i++) {
+            final long index = (theHash1 + i * theHash2) % longBitSet.size();
+            if (!longBitSet.get((index < 0) ? index + longBitSet.size() : index)) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-    /**
-     * Returns the current false positive probability of the bloom filter based on how many
-     * elements have been added to the filter.
-     *
-     * WARNING: this assumes that only unique values have been added to the bloom filter.
-     * 'currentNumElements' is blindly incremented every time an element is added to the filter.
-     * If duplicate elements are added this will report a higher false positive probability than
-     * actually exists.
-     */
     public double getCurrentFalsePositiveProbability() {
-        // (1 - e^(-k * n / m)) ^ k
         return Math.pow((1 - Math.exp(-k * currentNumElements / (double)longBitSet.size())), k);
     }
 
@@ -99,6 +104,7 @@ public class LongFastBloomFilter {
         currentNumElements = 0;
         longBitSet.clear();
     }
+
 }
 
 class LongFastBloomFilterSerializer implements ICompactSerializer<LongFastBloomFilter> {
