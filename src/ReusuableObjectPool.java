@@ -1,14 +1,15 @@
+package long_bloomfilter;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class ReusuableObjectPool<T extends Factory<T>> {
+public class ReusableObjectPool<T extends Factory<T>> {
 
 	private LinkedBlockingQueue<T> pool;
 	private T factoryObject;
 	private AtomicInteger numObjects = new AtomicInteger(1);
 	private final int maxObjects;
 
-	public ReusuableObjectPool(int maxObjects, T factoryObject) {
+	public ReusableObjectPool(int maxObjects, T factoryObject) {
 		pool = new LinkedBlockingQueue<T>(maxObjects);
 		pool.add(factoryObject);
 		this.factoryObject = factoryObject;
@@ -58,5 +59,3 @@ public class ReusuableObjectPool<T extends Factory<T>> {
 		}
 	}
 }
-
-
