@@ -1,3 +1,4 @@
+package long_bloomfilter;
 import java.io.Serializable;
 
 public class LongBitSet implements Cloneable, Serializable {
