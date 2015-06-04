@@ -1,10 +1,11 @@
+package long_bloomfilter;
 public class BloomFilterCalculations {
 
     public static final long MAX_BIT_ARRAY_SIZE = 137438953408L; //(long)Integer.MAX_VALUE*64;
     public static final double OPTIMAL_NUM_HASH_FUNCTIONS_MULTIPLIER = Math.log(2);
     public static final double ARRAY_SIZE_DENOMINATOR_CALC =  Math.pow(OPTIMAL_NUM_HASH_FUNCTIONS_MULTIPLIER,2);
     public static final double ELEMENT_SIZE_NUMERATOR_CALC = -MAX_BIT_ARRAY_SIZE * ARRAY_SIZE_DENOMINATOR_CALC;
-    public static final double MAX_BITSET_SIZE_CHANGE = .2;
+    public static double MAX_BITSET_SIZE_CHANGE = .2;
 
     /**
      * Returns the minimum bit array size (m) to satisfy the desired false
@@ -48,6 +49,12 @@ public class BloomFilterCalculations {
             K = k;
             this.bitSetSize = bitSetSize;
         }
+
+		public void setMaxBitSetSizeChange(double maxBitSetSizeChange)
+		{
+			MAX_BITSET_SIZE_CHANGE=maxBitSetSizeChange;
+			
+		}
     }
 
     public static BloomFilterSpecification computeBloomFilterSpec(long n, double p) {
