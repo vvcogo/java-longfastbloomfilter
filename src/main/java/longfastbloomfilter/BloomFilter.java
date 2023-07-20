@@ -1,7 +1,17 @@
 package longfastbloomfilter;
 
-public class BloomFilter {
+import java.io.Serializable;
+import java.util.Collection;
 
-    public static void main(String[] args) {
-    }
+public interface BloomFilter<T> {
+
+    void add(T element);
+
+    void addAll(Collection<T> elements);
+
+    boolean mightContains(T element);
+
+    void clear();
+
+    BloomFilterConfiguration getConfiguration();
 }
