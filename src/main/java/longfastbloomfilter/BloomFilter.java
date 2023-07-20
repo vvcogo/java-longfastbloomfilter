@@ -1,6 +1,5 @@
 package longfastbloomfilter;
 
-import java.io.Serializable;
 import java.util.Collection;
 
 public interface BloomFilter<T> {
