@@ -1,5 +1,8 @@
 package longfastbloomfilter;
 
+/**
+ * This class provides an implementation of MurmurHash, and implements the interface {@code IHash}.
+ */
 public class MurmurHash implements IHash {
 
     private static final long M = 0xc6a4a7935bd1e995L;

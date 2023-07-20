@@ -2,13 +2,11 @@ package longfastbloomfilter;
 
 import java.util.Collection;
 
-public class StandardBloomFilter<T> implements BloomFilter<T> {
+public class StandardBloomFilter<T> implements IBloomFilter<T> {
 
     private final BloomFilterConfiguration configuration;
 
-    public StandardBloomFilter(BloomFilterConfiguration configuration) {
-        this.configuration = configuration;
-    }
+    public StandardBloomFilter(BloomFilterConfiguration configuration) {this.configuration = configuration;}
 
     @Override
     public void add(T element) {

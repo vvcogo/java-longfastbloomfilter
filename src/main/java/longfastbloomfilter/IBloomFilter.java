@@ -1,9 +1,8 @@
 package longfastbloomfilter;
 
-import java.io.Serializable;
 import java.util.Collection;
 
-public interface BloomFilter<T> {
+public interface IBloomFilter<T> {
 
     void add(T element);
 
