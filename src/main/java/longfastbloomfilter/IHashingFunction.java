@@ -3,7 +3,7 @@ package longfastbloomfilter;
 /**
  * Interface that allows the implementation of a hash function.
  */
-public interface IHash {
+public interface IHashingFunction {
 
     /**
      * Generates a hash according to the given values.

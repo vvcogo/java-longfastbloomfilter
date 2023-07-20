@@ -7,12 +7,13 @@ import java.util.function.Function;
 public class StandardBloomFilter<T> implements IBloomFilter<T> {
 
     private final BloomFilterConfiguration configuration;
-    private final BigIntegerBitSet bitSet = new BigIntegerBitSet();
-    private final IHash hashingFunction;
+    private final BigIntegerBitSet bitSet;
+    private final IHashingFunction hashingFunction;
     private final Function<T, byte[]> serializer;
     
-    public StandardBloomFilter(BloomFilterConfiguration configuration, IHash hashingFunction, Function<T, byte[]> serializer) {
+    public StandardBloomFilter(BloomFilterConfiguration configuration, IHashingFunction hashingFunction, Function<T, byte[]> serializer) {
         this.configuration = configuration;
+        this.bitSet = new BigIntegerBitSet(configuration.bitSetSize());
         this.hashingFunction = hashingFunction;
         this.serializer = serializer;
     }
@@ -62,7 +63,7 @@ public class StandardBloomFilter<T> implements IBloomFilter<T> {
         BigInteger bigHash2 = BigInteger.valueOf(hash2);
         for (int i = 0; i < this.configuration.numberOfHashFunctions(); i++) {
             BigInteger bigI = BigInteger.valueOf(i);
-            BigInteger index = bigHash1.add(bigHash2.multiply(bigI)).abs();
+            BigInteger index = bigHash1.add(bigHash2.multiply(bigI)).abs().mod(this.configuration.bitSetSize());
             indices[i] = index;
         }
         return indices;
