@@ -1,4 +1,6 @@
-package io.github.vvcogo.hashing;
+package io.github.vvcogo.hashing.algorithms;
+
+import io.github.vvcogo.hashing.HashingAlgorithm;
 
 import java.util.Random;
 

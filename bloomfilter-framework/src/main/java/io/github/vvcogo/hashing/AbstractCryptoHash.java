@@ -8,18 +8,19 @@ import java.util.Objects;
 public abstract class AbstractCryptoHash implements HashingAlgorithm {
 
     protected String algorithm;
+    private MessageDigest md;
+
     protected AbstractCryptoHash(String algorithm){
         this.algorithm = algorithm;
-    }
-
-    @Override
-    public long hash(byte[] msg) {
-        MessageDigest md = null;
         try {
             md = MessageDigest.getInstance(algorithm);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public long hash(byte[] msg) {
         byte[] msgDigest = Objects.requireNonNull(md).digest(msg);
         return new BigInteger(msgDigest).longValue();
     }
