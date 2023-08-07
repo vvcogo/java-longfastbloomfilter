@@ -32,7 +32,7 @@
         <dependency>
             <groupId>com.baqend</groupId>
             <artifactId>bloom-filter</artifactId>
-            <version>1.0.7</version>
+            <version>1.1.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
