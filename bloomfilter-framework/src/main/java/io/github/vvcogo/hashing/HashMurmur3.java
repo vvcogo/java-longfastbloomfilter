@@ -1,17 +1,17 @@
-package io.github.vvcogo.Hashing;
+package io.github.vvcogo.hashing;
 
 import java.util.Random;
 
 /**
  * Code adapted from: https://github.com/yonik/java_util/tree/master
  */
-public class Murmur3Hash implements HashingAlgorithm {
+public class HashMurmur3 implements HashingAlgorithm {
 
     private final Random rd = new Random(0);
 
     /** Returns the MurmurHash3_x64_128 hash, that is a good choice for longer strings or if you need more than 32 bits of hash. */
     @Override
-    public long hash(byte[] msg, String algorithm){
+    public long hash(byte[] msg){
 
         int len = msg.length;
         long seed = rd.nextLong(len);
