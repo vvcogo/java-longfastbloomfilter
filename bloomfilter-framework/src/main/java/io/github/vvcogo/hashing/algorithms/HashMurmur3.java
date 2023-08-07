@@ -15,7 +15,7 @@ public class HashMurmur3 extends AbstractMurmur3Hash {
         long hash = super.calculations(msg);
 
         for (int i = 0; i < k; i++){
-            result[i] = hash;
+            result[i] = hash % m;
             hash = super.calculations(super.longToBytes(hash));
         }
         return result;
