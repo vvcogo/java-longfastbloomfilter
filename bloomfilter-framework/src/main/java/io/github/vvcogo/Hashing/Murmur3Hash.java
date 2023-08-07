@@ -1,4 +1,4 @@
-package io.github.vvcogo;
+package io.github.vvcogo.Hashing;
 
 import java.util.Random;
 
@@ -7,11 +7,11 @@ import java.util.Random;
  */
 public class Murmur3Hash implements HashingAlgorithm {
 
-    private final Random rd = new Random();
+    private final Random rd = new Random(0);
 
     /** Returns the MurmurHash3_x64_128 hash, that is a good choice for longer strings or if you need more than 32 bits of hash. */
     @Override
-    public long hash(byte[] msg){
+    public long hash(byte[] msg, String algorithm){
 
         int len = msg.length;
         long seed = rd.nextLong(len);
