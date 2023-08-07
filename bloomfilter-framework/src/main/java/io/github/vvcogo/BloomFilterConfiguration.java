@@ -1,14 +1,8 @@
 package io.github.vvcogo;
 
-public class BloomFilterConfiguration {
+import io.github.vvcogo.hashing.HashingAlgorithm;
 
-    private long bitSetSize;
-
-    public BloomFilterConfiguration(long bitSetSize) {
-        this.bitSetSize = bitSetSize;
-    }
-
-    public long getBitSetSize() {
-        return this.bitSetSize;
-    }
+public record BloomFilterConfiguration(long bitSetSize, long expectedNumberOfElements,
+                                       int numberOfHashFunctions, double falseProbabilityRate,
+                                       HashingAlgorithm hashFunction) {
 }
