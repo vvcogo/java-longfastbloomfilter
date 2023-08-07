@@ -1,4 +1,4 @@
-package io.github.vvcogo;
+package io.github.vvcogo.bitset;
 
 import java.io.Serializable;
 
