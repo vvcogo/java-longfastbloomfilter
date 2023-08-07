@@ -74,7 +74,7 @@ public abstract class AbstractMurmur3Hash implements HashingAlgorithm{
         h1 += h2;
         h2 += h1;
 
-        return (h1+h2) & 0x0FFFFFFFFFFFFFFFL;
+        return (h1+h2) & 0x7FFFFFFFFFFFFFFFL; //FIXME: ver como juntar
     }
 
 
