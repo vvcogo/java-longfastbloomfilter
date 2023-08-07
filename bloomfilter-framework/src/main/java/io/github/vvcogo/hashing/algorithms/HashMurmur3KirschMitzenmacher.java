@@ -1,22 +1,20 @@
 package io.github.vvcogo.hashing.algorithms;
 
 import io.github.vvcogo.hashing.AbstractMurmur3Hash;
-import io.github.vvcogo.hashing.HashingAlgorithm;
 
 import java.nio.ByteBuffer;
-import java.util.Random;
 
-public class HashMurmur3 extends AbstractMurmur3Hash {
-
+public class HashMurmur3KirschMitzenmacher extends AbstractMurmur3Hash {
     @Override
     public long[] hash(byte[] msg, int k, long m){
 
         long[] result = new long[k];
-        long hash = super.calculations(msg);
+
+        long hash1 = super.calculations(msg);
+        long hash2 = super.calculations(super.longToBytes(hash1));
 
         for (int i = 0; i < k; i++){
-            result[i] = hash;
-            hash = super.calculations(super.longToBytes(hash));
+            result[i] = (hash1 + i * hash2) % m; //Kirsch Mitzenmacher method
         }
         return result;
     }
