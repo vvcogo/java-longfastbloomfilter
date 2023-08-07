@@ -24,6 +24,12 @@
             <version>32.1.2-jre</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>io.github.vvcogo</groupId>
+            <artifactId>bloomfilter-framework</artifactId>
+            <version>0.1</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>

@@ -1,5 +1,7 @@
 package io.github.vvcogo;
 
+import io.github.vvcogo.bitset.BitSet;
+
 import java.util.Collection;
 
 public abstract class AbstractBloomFilter<T, U extends Number> implements BloomFilter<T> {
