@@ -1,7 +1,7 @@
 package io.github.vvcogo.hashing.factory;
 
 import io.github.vvcogo.hashing.algorithms.HashMD5;
-import io.github.vvcogo.hashing.HashingAlgorithm;
+import io.github.vvcogo.hashing.algorithms.HashingAlgorithm;
 
 public class HashMD5Factory implements HashingFactory{
     @Override

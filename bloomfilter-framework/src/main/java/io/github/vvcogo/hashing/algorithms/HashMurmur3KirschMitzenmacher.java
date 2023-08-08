@@ -1,9 +1,5 @@
 package io.github.vvcogo.hashing.algorithms;
 
-import io.github.vvcogo.hashing.AbstractMurmur3Hash;
-
-import java.nio.ByteBuffer;
-
 public class HashMurmur3KirschMitzenmacher extends AbstractMurmur3Hash {
     @Override
     public long[] hash(byte[] msg, int k, long m){

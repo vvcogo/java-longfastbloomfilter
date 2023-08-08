@@ -1,4 +1,4 @@
-package io.github.vvcogo.hashing;
+package io.github.vvcogo.hashing.algorithms;
 
 public interface HashingAlgorithm {
 

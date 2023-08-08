@@ -1,4 +1,4 @@
-package io.github.vvcogo.hashing;
+package io.github.vvcogo.hashing.algorithms;
 
 import java.nio.ByteBuffer;
 import java.util.Random;
@@ -6,7 +6,7 @@ import java.util.Random;
 /**
  * Code adapted from: https://github.com/yonik/java_util/tree/master
  */
-public abstract class AbstractMurmur3Hash implements HashingAlgorithm{
+public abstract class AbstractMurmur3Hash implements HashingAlgorithm {
 
     private final Random rd = new Random(0);
 
