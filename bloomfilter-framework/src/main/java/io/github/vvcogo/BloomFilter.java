@@ -1,17 +1,28 @@
 package io.github.vvcogo;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 public interface BloomFilter<T> extends Serializable, Cloneable {
 
     void add(T element);
 
-    void addAll(Collection<T> elements);
+    default void addAll(Iterable<T> elements) {
+        for (T element : elements) {
+            add(element);
+        }
+    }
 
     boolean mightContains(T element);
 
-    boolean[] mightContains(Collection<T> elements);
+    default List<Boolean> mightContains(Iterable<T> elements) {
+        List<Boolean> result = new ArrayList<>();
+        for (T element : elements) {
+            result.add(mightContains(element));
+        }
+        return result;
+    }
 
     void clear();
 

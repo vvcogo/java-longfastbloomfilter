@@ -64,9 +64,9 @@ public class LongBitSet implements BitSet {
     }
 
     @Override
-    public void union(BitSet other) {
+    public void or(BitSet other) {
         if (!isCompatible(other)) {
-            throw new IllegalArgumentException("BitSet's are not compatible.");
+            throw new RuntimeException("BitSet's are not compatible.");
         }
         LongBitSet otherLongBitSet = (LongBitSet) other;
         for (int i = 0; i < this.bits.length; i++) {
@@ -77,9 +77,9 @@ public class LongBitSet implements BitSet {
     }
 
     @Override
-    public void intersect(BitSet other) {
+    public void and(BitSet other) {
         if (!isCompatible(other)) {
-            throw new IllegalArgumentException("BitSet's are not compatible.");
+            throw new RuntimeException("BitSet's are not compatible.");
         }
         LongBitSet otherLongBitSet = (LongBitSet) other;
         for (int i = 0; i < this.bits.length; i++) {

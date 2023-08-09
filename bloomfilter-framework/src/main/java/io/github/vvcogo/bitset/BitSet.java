@@ -12,9 +12,9 @@ public interface BitSet extends Serializable, Cloneable {
 
     boolean isEmpty();
 
-    void union(BitSet other);
+    void or(BitSet other);
 
-    void intersect(BitSet other);
+    void and(BitSet other);
 
     boolean isCompatible(BitSet other);
 
