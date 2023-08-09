@@ -3,8 +3,6 @@ package io.github.vvcogo;
 import io.github.vvcogo.bitset.BitSet;
 import io.github.vvcogo.bitset.LongBitSet;
 
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectOutputStream;
 import java.util.Objects;
 
 public class StandardLongBloomFilter<T> implements BloomFilter<T> {
@@ -49,26 +47,6 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
     }
 
     @Override
-    public boolean isCompatible(BloomFilter<T> other) {//FIXME
-        return false;
-    }
-
-    @Override
-    public void union(BloomFilter<T> other) { //FIXME
-        if (!isCompatible(other)) {
-            throw new RuntimeException("Incompatible BloomFilters!");
-        }
-
-    }
-
-    @Override
-    public void intersect(BloomFilter<T> other) { //FIXME
-        if (!isCompatible(other)) {
-            throw new RuntimeException("Incompatible BloomFilters!");
-        }
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if (obj == this)
             return true;
@@ -106,17 +84,7 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
         return this.configuration.hashFunction().hash(bytes, numbHashes, size);
     }
 
-    private byte[] toBytes(T element) { //FIXME
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(element);
-            byte[] data = baos.toByteArray();
-            oos.close();
-            return data;
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return null;
+    private byte[] toBytes(T element) {
+        return this.configuration.serializer().serialize(element);
     }
 }

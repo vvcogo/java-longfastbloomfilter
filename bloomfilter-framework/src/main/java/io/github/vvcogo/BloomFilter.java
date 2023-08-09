@@ -30,9 +30,4 @@ public interface BloomFilter<T> extends Serializable, Cloneable {
 
     BloomFilterConfiguration<? super T> getConfiguration();
 
-    boolean isCompatible(BloomFilter<T> other);
-
-    void union(BloomFilter<T> other);
-
-    void intersect(BloomFilter<T> other);
 }
