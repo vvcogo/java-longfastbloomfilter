@@ -1,6 +1,7 @@
 package io.github.vvcogo;
 
 import io.github.vvcogo.hashing.HashAlgorithms;
+import io.github.vvcogo.serialization.Serializer;
 
 public class TestMain {
 

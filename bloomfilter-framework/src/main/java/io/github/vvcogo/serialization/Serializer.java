@@ -1,4 +1,4 @@
-package io.github.vvcogo;
+package io.github.vvcogo.serialization;
 
 public interface Serializer<T> {
 
