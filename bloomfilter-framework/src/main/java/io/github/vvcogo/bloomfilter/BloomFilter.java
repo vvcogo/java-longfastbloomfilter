@@ -1,10 +1,12 @@
-package io.github.vvcogo;
+package io.github.vvcogo.bloomfilter;
+
+import io.github.vvcogo.BloomFilterConfiguration;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public interface BloomFilter<T> extends Serializable, Cloneable {
+public interface BloomFilter<T> extends Serializable {
 
     void add(T element);
 
@@ -30,4 +32,5 @@ public interface BloomFilter<T> extends Serializable, Cloneable {
 
     BloomFilterConfiguration<? super T> getConfiguration();
 
+    BloomFilter<T> copy();
 }

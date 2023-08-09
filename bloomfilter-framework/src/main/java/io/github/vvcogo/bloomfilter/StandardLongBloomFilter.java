@@ -1,5 +1,6 @@
-package io.github.vvcogo;
+package io.github.vvcogo.bloomfilter;
 
+import io.github.vvcogo.BloomFilterConfiguration;
 import io.github.vvcogo.bitset.BitSet;
 import io.github.vvcogo.bitset.LongBitSet;
 
@@ -8,7 +9,7 @@ import java.util.Objects;
 public class StandardLongBloomFilter<T> implements BloomFilter<T> {
 
     private final BloomFilterConfiguration<? super T> configuration;
-    private final BitSet bitSet;
+    private BitSet bitSet;
 
     public StandardLongBloomFilter(BloomFilterConfiguration<? super T> config) {
         this.configuration = config;
@@ -17,7 +18,10 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
 
     @Override
     public void add(T element) {
-        add(toBytes(element));
+        byte[] bytes = toBytes(element);
+        for (long hash : getHashes(bytes)) {
+            this.bitSet.set(hash);
+        }
     }
 
     @Override
@@ -47,6 +51,13 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
     }
 
     @Override
+    public BloomFilter<T> copy() {
+        StandardLongBloomFilter<T> copy = new StandardLongBloomFilter<>(this.configuration);
+        copy.bitSet = this.bitSet.copy();
+        return copy;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (obj == this)
             return true;
@@ -70,12 +81,6 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
                 .append("\nBitSet:\b")
                 .append(this.bitSet.toString());
         return sb.toString();
-    }
-
-    private void add(byte[] bytes) {
-        for (long hash : getHashes(bytes)) {
-            this.bitSet.set(hash);
-        }
     }
 
     private long[] getHashes(byte[] bytes) {

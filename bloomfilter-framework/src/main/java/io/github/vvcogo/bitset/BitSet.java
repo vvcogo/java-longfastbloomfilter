@@ -2,7 +2,7 @@ package io.github.vvcogo.bitset;
 
 import java.io.Serializable;
 
-public interface BitSet extends Serializable, Cloneable {
+public interface BitSet extends Serializable {
 
     void set(long index);
 
@@ -12,13 +12,13 @@ public interface BitSet extends Serializable, Cloneable {
 
     boolean isEmpty();
 
-    void or(BitSet other);
-
-    void and(BitSet other);
-
-    boolean isCompatible(BitSet other);
+//    void or(BitSet other);
+//
+//    void and(BitSet other);
+//
+//    boolean isCompatible(BitSet other);
 
     long getSize();
 
-    BitSet clone();
+    BitSet copy();
 }

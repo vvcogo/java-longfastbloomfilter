@@ -1,5 +1,7 @@
 package io.github.vvcogo;
 
+import io.github.vvcogo.bloomfilter.BloomFilter;
+import io.github.vvcogo.bloomfilter.StandardLongBloomFilter;
 import io.github.vvcogo.hashing.HashAlgorithms;
 import io.github.vvcogo.serialization.Serializer;
 

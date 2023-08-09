@@ -1,6 +1,6 @@
 package io.github.vvcogo.factory;
 
-import io.github.vvcogo.BloomFilter;
+import io.github.vvcogo.bloomfilter.BloomFilter;
 import io.github.vvcogo.BloomFilterConfiguration;
 
 public interface BloomFilterFactory {

@@ -1,8 +1,8 @@
 package io.github.vvcogo.factory;
 
-import io.github.vvcogo.BloomFilter;
+import io.github.vvcogo.bloomfilter.BloomFilter;
 import io.github.vvcogo.BloomFilterConfiguration;
-import io.github.vvcogo.StandardLongBloomFilter;
+import io.github.vvcogo.bloomfilter.StandardLongBloomFilter;
 
 public class StandardLongBloomFilterFactory implements BloomFilterFactory {
 

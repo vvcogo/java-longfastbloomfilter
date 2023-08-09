@@ -5,5 +5,5 @@ import io.github.vvcogo.serialization.Serializer;
 
 public record BloomFilterConfiguration<T>(long bitSetSize, long expectedNumberOfElements,
                                        int numberOfHashFunctions, double falsePositiveRate,
-                                       HashingAlgorithm hashFunction, Serializer<T> serializer) {
+                                       HashingAlgorithm hashFunction, Serializer<? super T> serializer) {
 }

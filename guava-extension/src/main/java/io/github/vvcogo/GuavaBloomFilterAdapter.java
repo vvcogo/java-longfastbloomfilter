@@ -1,6 +1,7 @@
 package io.github.vvcogo;
 
 import com.google.common.hash.Funnel;
+import io.github.vvcogo.bloomfilter.BloomFilter;
 
 public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {
 
@@ -13,7 +14,6 @@ public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {
         this.emptyBloomFilter = createBloomFilter();
         this.bloomFilter = createBloomFilter();
     }
-
 
     @Override
     public void add(T element) {
@@ -38,6 +38,13 @@ public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {
     @Override
     public BloomFilterConfiguration<? super T> getConfiguration() {
         return this.config;
+    }
+
+    @Override
+    public BloomFilter<T> copy() {
+        GuavaBloomFilterAdapter<T> copy = new GuavaBloomFilterAdapter<>(this.config);
+        copy.bloomFilter = this.bloomFilter.copy();
+        return copy;
     }
 
     private com.google.common.hash.BloomFilter<T> createBloomFilter() {

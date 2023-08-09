@@ -1,12 +1,13 @@
 package io.github.vvcogo;
 
 
+import io.github.vvcogo.bloomfilter.BloomFilter;
 import orestes.bloomfilter.FilterBuilder;
 
-public class OrestesBloomFilterAdapter<T> implements BloomFilter<T>{
+public class OrestesBloomFilterAdapter<T> implements BloomFilter<T> {
 
     private final BloomFilterConfiguration<? super T> config;
-    private final orestes.bloomfilter.BloomFilter<T> bloomFilter;
+    private orestes.bloomfilter.BloomFilter<T> bloomFilter;
 
     public OrestesBloomFilterAdapter(BloomFilterConfiguration<? super T> config){
         this.config = config;
@@ -38,6 +39,13 @@ public class OrestesBloomFilterAdapter<T> implements BloomFilter<T>{
     @Override
     public BloomFilterConfiguration<? super T> getConfiguration() {
         return this.config;
+    }
+
+    @Override
+    public BloomFilter<T> copy() {
+        OrestesBloomFilterAdapter<T> copy = new OrestesBloomFilterAdapter<>(this.config);
+        copy.bloomFilter = this.bloomFilter.clone();
+        return copy;
     }
 
 }

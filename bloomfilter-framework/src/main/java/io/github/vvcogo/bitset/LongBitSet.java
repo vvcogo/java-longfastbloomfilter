@@ -6,28 +6,12 @@ public class LongBitSet implements BitSet {
 
     private static final long SINGLE_ARRAY_MAX_BIT_SIZE = Integer.MAX_VALUE * 64L;
 
-    private final long[][] bits;
     private final long size;
+    private long[][] bits;
 
     public LongBitSet(long size) {
         this.size = size;
-        long maxIndex = size - 1;
-        int numbOfArrays = getArrayIndex(maxIndex) + 1;
-        this.bits = new long[numbOfArrays][];
-        for (int i = 0; i < numbOfArrays - 1; i++) {
-            this.bits[i] = new long[Integer.MAX_VALUE];
-        }
-        int lastArraySize = getElementIndex(maxIndex) + 1;
-        this.bits[numbOfArrays - 1] = new long[lastArraySize];
-    }
-
-    public LongBitSet(LongBitSet other) {
-        this(other.getSize());
-        for (int i = 0; i < this.bits.length; i++) {
-            for (int j = 0; j < this.bits[i].length; j++) {
-                this.bits[i][j] = other.bits[i][j];
-            }
-        }
+        this.bits = createBitsArray();
     }
 
     @Override
@@ -47,9 +31,7 @@ public class LongBitSet implements BitSet {
 
     @Override
     public void clear() {
-        for (long[] array : this.bits) {
-            Arrays.fill(array, 0);
-        }
+        this.bits = createBitsArray();
     }
 
     @Override
@@ -63,44 +45,44 @@ public class LongBitSet implements BitSet {
         return true;
     }
 
-    @Override
-    public void or(BitSet other) {
-        if (!isCompatible(other)) {
-            throw new RuntimeException("BitSet's are not compatible.");
-        }
-        LongBitSet otherLongBitSet = (LongBitSet) other;
-        for (int i = 0; i < this.bits.length; i++) {
-            for (int j = 0; j < this.bits[i].length; j++) {
-                this.bits[i][j] |= otherLongBitSet.bits[i][j];
-            }
-        }
-    }
-
-    @Override
-    public void and(BitSet other) {
-        if (!isCompatible(other)) {
-            throw new RuntimeException("BitSet's are not compatible.");
-        }
-        LongBitSet otherLongBitSet = (LongBitSet) other;
-        for (int i = 0; i < this.bits.length; i++) {
-            for (int j = 0; j < this.bits[i].length; j++) {
-                this.bits[i][j] &= otherLongBitSet.bits[i][j];
-            }
-        }
-    }
-
-    @Override
-    public boolean isCompatible(BitSet other) {
-        if (other == this)
-            return true;
-        if (other != null && getClass() == other.getClass()) {
-            LongBitSet otherLongBitSet = (LongBitSet) other;
-            int length = this.bits.length;
-            int otherLength = otherLongBitSet.bits.length;
-            return length == otherLength && this.bits[length - 1].length == otherLongBitSet.bits[otherLength - 1].length;
-        }
-        return false;
-    }
+//    @Override
+//    public void or(BitSet other) {
+//        if (!isCompatible(other)) {
+//            throw new RuntimeException("BitSet's are not compatible.");
+//        }
+//        LongBitSet otherLongBitSet = (LongBitSet) other;
+//        for (int i = 0; i < this.bits.length; i++) {
+//            for (int j = 0; j < this.bits[i].length; j++) {
+//                this.bits[i][j] |= otherLongBitSet.bits[i][j];
+//            }
+//        }
+//    }
+//
+//    @Override
+//    public void and(BitSet other) {
+//        if (!isCompatible(other)) {
+//            throw new RuntimeException("BitSet's are not compatible.");
+//        }
+//        LongBitSet otherLongBitSet = (LongBitSet) other;
+//        for (int i = 0; i < this.bits.length; i++) {
+//            for (int j = 0; j < this.bits[i].length; j++) {
+//                this.bits[i][j] &= otherLongBitSet.bits[i][j];
+//            }
+//        }
+//    }
+//
+//    @Override
+//    public boolean isCompatible(BitSet other) {
+//        if (other == this)
+//            return true;
+//        if (other != null && getClass() == other.getClass()) {
+//            LongBitSet otherLongBitSet = (LongBitSet) other;
+//            int length = this.bits.length;
+//            int otherLength = otherLongBitSet.bits.length;
+//            return length == otherLength && this.bits[length - 1].length == otherLongBitSet.bits[otherLength - 1].length;
+//        }
+//        return false;
+//    }
 
     @Override
     public long getSize() {
@@ -108,8 +90,14 @@ public class LongBitSet implements BitSet {
     }
 
     @Override
-    public LongBitSet clone() {
-        return new LongBitSet(this);
+    public LongBitSet copy() {
+        LongBitSet copy = new LongBitSet(this.size);
+        for (int i = 0; i < this.bits.length; i++) {
+            for (int j = 0; j < this.bits[i].length; j++) {
+                copy.bits[i][j] = this.bits[i][j];
+            }
+        }
+        return copy;
     }
 
     @Override
@@ -155,5 +143,17 @@ public class LongBitSet implements BitSet {
     private int getElementIndex(long index) {
         long remaining = index % SINGLE_ARRAY_MAX_BIT_SIZE;
         return (int) (remaining / 64);
+    }
+
+    private long[][] createBitsArray() {
+        long maxIndex = this.size - 1;
+        int numbOfArrays = getArrayIndex(maxIndex) + 1;
+        long[][] bitArray = new long[numbOfArrays][];
+        for (int i = 0; i < numbOfArrays - 1; i++) {
+            bitArray[i] = new long[Integer.MAX_VALUE];
+        }
+        int lastArraySize = getElementIndex(maxIndex) + 1;
+        bitArray[numbOfArrays - 1] = new long[lastArraySize];
+        return bitArray;
     }
 }
