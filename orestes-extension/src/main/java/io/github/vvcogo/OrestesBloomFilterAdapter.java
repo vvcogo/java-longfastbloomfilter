@@ -1,10 +1,18 @@
 package io.github.vvcogo;
 
+
+import orestes.bloomfilter.FilterBuilder;
+
 public class OrestesBloomFilterAdapter<T> implements BloomFilter<T>{
 
+    private final BloomFilterConfiguration<? super T> config;
+    private final orestes.bloomfilter.BloomFilter<T> bf;
 
     public OrestesBloomFilterAdapter(BloomFilterConfiguration<? super T> config){
-
+        this.config = config;
+        int expectedNumberOfElements = (int) config.expectedNumberOfElements();
+        double falsePositiveRate = config.falsePositiveRate();
+        bf = new FilterBuilder(expectedNumberOfElements, falsePositiveRate).buildBloomFilter();
     }
 
     @Override
@@ -32,18 +40,4 @@ public class OrestesBloomFilterAdapter<T> implements BloomFilter<T>{
         return null;
     }
 
-    @Override
-    public boolean isCompatible(BloomFilter<T> other) {
-        return false;
-    }
-
-    @Override
-    public void union(BloomFilter<T> other) {
-
-    }
-
-    @Override
-    public void intersect(BloomFilter<T> other) {
-
-    }
 }

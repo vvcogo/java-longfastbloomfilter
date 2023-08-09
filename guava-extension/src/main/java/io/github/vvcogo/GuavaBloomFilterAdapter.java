@@ -6,6 +6,7 @@ public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {
 
     }
 
+
     @Override
     public void add(T element) {
 
@@ -29,20 +30,5 @@ public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {
     @Override
     public BloomFilterConfiguration<? super T> getConfiguration() {
         return null;
-    }
-
-    @Override
-    public boolean isCompatible(BloomFilter<T> other) {
-        return false;
-    }
-
-    @Override
-    public void union(BloomFilter<T> other) {
-
-    }
-
-    @Override
-    public void intersect(BloomFilter<T> other) {
-
     }
 }
