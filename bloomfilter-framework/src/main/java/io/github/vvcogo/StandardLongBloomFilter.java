@@ -9,10 +9,10 @@ import java.util.Objects;
 
 public class StandardLongBloomFilter<T> implements BloomFilter<T> {
 
-    private final BloomFilterConfiguration configuration;
+    private final BloomFilterConfiguration<? super T> configuration;
     private final BitSet bitSet;
 
-    public StandardLongBloomFilter(BloomFilterConfiguration config) {
+    public StandardLongBloomFilter(BloomFilterConfiguration<? super T> config) {
         this.configuration = config;
         this.bitSet = new LongBitSet(config.bitSetSize());
     }
@@ -44,19 +44,17 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
     }
 
     @Override
-    public BloomFilterConfiguration getConfiguration() {
+    public BloomFilterConfiguration<? super T> getConfiguration() {
         return this.configuration;
     }
 
-
-    //TODO
     @Override
-    public boolean isCompatible(BloomFilter<T> other) {
+    public boolean isCompatible(BloomFilter<T> other) {//FIXME
         return false;
     }
 
     @Override
-    public void union(BloomFilter<T> other) {
+    public void union(BloomFilter<T> other) { //FIXME
         if (!isCompatible(other)) {
             throw new RuntimeException("Incompatible BloomFilters!");
         }
@@ -64,7 +62,7 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
     }
 
     @Override
-    public void intersect(BloomFilter<T> other) {
+    public void intersect(BloomFilter<T> other) { //FIXME
         if (!isCompatible(other)) {
             throw new RuntimeException("Incompatible BloomFilters!");
         }
@@ -108,7 +106,7 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
         return this.configuration.hashFunction().hash(bytes, numbHashes, size);
     }
 
-    private byte[] toBytes(T element) {
+    private byte[] toBytes(T element) { //FIXME
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);

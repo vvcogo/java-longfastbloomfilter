@@ -28,7 +28,7 @@ public interface BloomFilter<T> extends Serializable, Cloneable {
 
     boolean isEmpty();
 
-    BloomFilterConfiguration getConfiguration();
+    BloomFilterConfiguration<? super T> getConfiguration();
 
     boolean isCompatible(BloomFilter<T> other);
 
