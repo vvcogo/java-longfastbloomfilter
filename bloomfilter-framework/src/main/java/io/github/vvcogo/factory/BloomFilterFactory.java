@@ -5,7 +5,7 @@ import io.github.vvcogo.BloomFilterConfiguration;
 
 public interface BloomFilterFactory {
 
-    <T> BloomFilter<T> create(BloomFilterConfiguration config);
+    <T> BloomFilter<T> create(BloomFilterConfiguration<T> config);
 
     String getFactoryId();
 }
