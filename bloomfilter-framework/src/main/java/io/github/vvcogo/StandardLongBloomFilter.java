@@ -3,6 +3,8 @@ package io.github.vvcogo;
 import io.github.vvcogo.bitset.BitSet;
 import io.github.vvcogo.bitset.LongBitSet;
 
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.Objects;
 
 public class StandardLongBloomFilter<T> implements BloomFilter<T> {
@@ -17,11 +19,18 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
 
     @Override
     public void add(T element) {
+        add(toBytes(element));
     }
 
     @Override
     public boolean mightContains(T element) {
-        return false;
+        byte[] bytes = toBytes(element);
+        long[] hashes = getHashes(bytes);
+        for (long hash : hashes) {
+            if (!this.bitSet.get(hash))
+                return false;
+        }
+        return true;
     }
 
     @Override
@@ -88,6 +97,28 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
     }
 
     private void add(byte[] bytes) {
+        for (long hash : getHashes(bytes)) {
+            this.bitSet.set(hash);
+        }
+    }
 
+    private long[] getHashes(byte[] bytes) {
+        long size = this.configuration.bitSetSize();
+        int numbHashes = this.configuration.numberOfHashFunctions();
+        return this.configuration.hashFunction().hash(bytes, numbHashes, size);
+    }
+
+    private byte[] toBytes(T element) {
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(element);
+            byte[] data = baos.toByteArray();
+            oos.close();
+            return data;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
