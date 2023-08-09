@@ -1,9 +1,9 @@
-package io.github.vvcogo;
+package io.github.vvcogo.longfastbloomfilter.framework;
 
-import io.github.vvcogo.bloomfilter.BloomFilter;
-import io.github.vvcogo.bloomfilter.StandardLongBloomFilter;
-import io.github.vvcogo.hashing.HashAlgorithms;
-import io.github.vvcogo.serialization.Serializer;
+import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
+import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.StandardLongBloomFilter;
+import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashAlgorithms;
+import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
 
 public class TestMain {
 

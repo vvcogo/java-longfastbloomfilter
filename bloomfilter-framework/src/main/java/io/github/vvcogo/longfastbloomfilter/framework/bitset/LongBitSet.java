@@ -1,4 +1,4 @@
-package io.github.vvcogo.bitset;
+package io.github.vvcogo.longfastbloomfilter.framework.bitset;
 
 import java.util.Arrays;
 

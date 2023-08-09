@@ -1,4 +1,4 @@
-package io.github.vvcogo.hashing;
+package io.github.vvcogo.longfastbloomfilter.framework.hashing;
 
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;

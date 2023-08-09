@@ -1,4 +1,4 @@
-package io.github.vvcogo.serialization;
+package io.github.vvcogo.longfastbloomfilter.framework.serialization;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

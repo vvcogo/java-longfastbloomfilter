@@ -1,4 +1,4 @@
-package io.github.vvcogo.hashing;
+package io.github.vvcogo.longfastbloomfilter.framework.hashing;
 
 public final class HashAlgorithms {
 

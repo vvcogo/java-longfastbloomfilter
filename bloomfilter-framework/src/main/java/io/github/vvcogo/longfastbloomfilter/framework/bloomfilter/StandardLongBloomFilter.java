@@ -1,8 +1,8 @@
-package io.github.vvcogo.bloomfilter;
+package io.github.vvcogo.longfastbloomfilter.framework.bloomfilter;
 
-import io.github.vvcogo.BloomFilterConfiguration;
-import io.github.vvcogo.bitset.BitSet;
-import io.github.vvcogo.bitset.LongBitSet;
+import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfiguration;
+import io.github.vvcogo.longfastbloomfilter.framework.bitset.BitSet;
+import io.github.vvcogo.longfastbloomfilter.framework.bitset.LongBitSet;
 
 import java.util.Objects;
 

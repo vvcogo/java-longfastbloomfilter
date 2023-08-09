@@ -1,4 +1,4 @@
-package io.github.vvcogo.factory;
+package io.github.vvcogo.longfastbloomfilter.framework.factory;
 
 import java.util.HashMap;
 import java.util.Map;

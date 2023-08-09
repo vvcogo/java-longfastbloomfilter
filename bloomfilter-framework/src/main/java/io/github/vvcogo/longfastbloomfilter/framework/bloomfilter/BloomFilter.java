@@ -1,6 +1,6 @@
-package io.github.vvcogo.bloomfilter;
+package io.github.vvcogo.longfastbloomfilter.framework.bloomfilter;
 
-import io.github.vvcogo.BloomFilterConfiguration;
+import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfiguration;
 
 import java.io.Serializable;
 import java.util.ArrayList;
