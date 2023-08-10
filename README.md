@@ -2,5 +2,10 @@
 # Long Fast Bloom Filter - dev
 
 ----
-## Class diagram
-![alt text](BF_DC.png)
+## Class Diagram
+![class diagram](BF_DC.png)
+
+----
+## Bitmap Size Table
+
+![bitmap table](bitmap_size_table.png)
