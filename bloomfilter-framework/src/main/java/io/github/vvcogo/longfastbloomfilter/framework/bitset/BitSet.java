@@ -12,12 +12,6 @@ public interface BitSet extends Serializable {
 
     boolean isEmpty();
 
-//    void or(BitSet other);
-//
-//    void and(BitSet other);
-//
-//    boolean isCompatible(BitSet other);
-
     long getSize();
 
     BitSet copy();
