@@ -5,7 +5,7 @@ import java.util.List;
 public class WorkerThread implements Runnable{
 
     private String msg;
-    private List<?> jobs;
+    private List<?> jobs; // da problema ter interface ou classe de job
 
     public WorkerThread(String s){
         this.msg = s;
