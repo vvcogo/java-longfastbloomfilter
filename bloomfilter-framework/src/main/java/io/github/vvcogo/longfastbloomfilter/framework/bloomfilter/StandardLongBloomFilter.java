@@ -3,7 +3,6 @@ package io.github.vvcogo.longfastbloomfilter.framework.bloomfilter;
 import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfiguration;
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.AtomicLongBitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.BitSet;
-import io.github.vvcogo.longfastbloomfilter.framework.bitset.LongBitSet;
 
 import java.util.Objects;
 

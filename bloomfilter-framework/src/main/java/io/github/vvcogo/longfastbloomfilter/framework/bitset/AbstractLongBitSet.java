@@ -1,6 +1,5 @@
 package io.github.vvcogo.longfastbloomfilter.framework.bitset;
 
-
 public abstract class AbstractLongBitSet implements BitSet {
 
     private static final long SINGLE_ARRAY_MAX_BIT_SIZE = Integer.MAX_VALUE * 64L;

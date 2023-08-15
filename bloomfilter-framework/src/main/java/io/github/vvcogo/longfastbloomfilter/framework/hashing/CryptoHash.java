@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 public final class CryptoHash {
 
     private CryptoHash() {
+        throw new UnsupportedOperationException("Cannot create an instance of "+ getClass().getName());
     }
 
     public static long[] hash(byte[] msg, int k, long m, String method) {

@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Logger;
 
 public class TestApplication {
 
@@ -97,7 +96,6 @@ public class TestApplication {
                     failCount.getAndIncrement();
             }));
         }
-
         System.out.println();
 
         start = System.currentTimeMillis();

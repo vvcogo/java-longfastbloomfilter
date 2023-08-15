@@ -7,6 +7,7 @@ public final class MurmurHash {
     private static final long POSITIVE_SIGN_BIT_BITMASK = 0x7FFFFFFFFFFFFFFFL;
 
     private MurmurHash() {
+        throw new UnsupportedOperationException("Cannot create an instance of "+ getClass().getName());
     }
 
     public static long hash(final byte[] data, long seed) {
