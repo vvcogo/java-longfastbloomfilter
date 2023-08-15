@@ -33,7 +33,7 @@ public class TestApplication {
 
         if(args.length < 2 || args.length > 4) {
             String filePath = TestApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-            String jarFileName = filePath.substring(filePath.lastIndexOf("/"), filePath.length());
+            String jarFileName = filePath.substring(filePath.lastIndexOf("/"));
             System.err.println(String.format("Usage: .%s <insert file> <query file> <config file> <number of threads>", jarFileName));
             System.exit(1);
         }
@@ -46,7 +46,7 @@ public class TestApplication {
         if (args.length == 3) {
             String configFilePath = args[2];
             try (FileInputStream inputStream = new FileInputStream(new File(configFilePath))) {
-                bc = BloomFilterConfigurationLoader.<String>load(inputStream).createConfiguration();
+                bf = BloomFilterConfigurationLoader.<String>load(inputStream).createBloomFilter();
             } catch (FileNotFoundException e) {
                 System.err.println("Config file not found!");
                 System.exit(1);
@@ -56,12 +56,11 @@ public class TestApplication {
             }
         }
 
-
         int numberOfThreads = Runtime.getRuntime().availableProcessors() - 1;
         if (args.length == 4) {
             int readNumber;
             try {
-                readNumber = Integer.parseInt(args[2]);
+                readNumber = Integer.parseInt(args[3]);
                 if (readNumber <= 0) {
                     System.err.println("Number of threads cannot be smaller than 1! Using: ");
                 } else {
@@ -72,7 +71,6 @@ public class TestApplication {
             }
         }
 
-
         //threads---------------
         System.out.println("\nCreating Thread Pool with " + numberOfThreads + " threads.\n");
         ExecutorService exec = Executors.newFixedThreadPool(numberOfThreads);
@@ -81,13 +79,13 @@ public class TestApplication {
         for(String elem : listInsert){
             callInsert.add(Executors.callable(() -> {
                 bf.add(elem);
-                System.out.println(String.format("[Thread: %s] INSERTED: %s", Thread.currentThread().getName(), elem));
+                System.out.printf("[Thread: %s] INSERTED: %s%n", Thread.currentThread().getName(), elem);
             } ));
         }
         long start = System.currentTimeMillis();
         exec.invokeAll(callInsert);
         long elapsed = System.currentTimeMillis() - start;
-        System.out.println(String.format("\nFinished inserting %o elements in %o ms\n", callInsert.size(), elapsed));
+        System.out.printf("\nFinished inserting %o elements in %o ms\n%n", callInsert.size(), elapsed);
 
         AtomicInteger failCount = new AtomicInteger();
         List<Callable<Object>> callQuery = new ArrayList<>();

@@ -1,5 +1,7 @@
 package io.github.vvcogo.longfastbloomfilter.framework;
 
+import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
+import io.github.vvcogo.longfastbloomfilter.framework.factory.BloomFilterFactoryManager;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFunction;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
@@ -17,8 +19,10 @@ public class BloomFilterConfigurationLoader<T> {
     private double falsePositiveProbability; // obrigatorio
     private HashingAlgorithm hashingAlgorithm;
     private Serializer<? super T> serializer;
+    private String typeBf; // obrigatorio
 
-    private BloomFilterConfigurationLoader(Properties properties) throws ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private BloomFilterConfigurationLoader(Properties properties) throws ClassNotFoundException, NoSuchMethodException,
+            InvocationTargetException, InstantiationException, IllegalAccessException {
         this.bitSetSize = Long.parseLong(properties.getProperty("bitset-size", "-1"));
         this.expectedNumberOfElements = Long.parseLong(properties.getProperty("expected-elements", "-1"));
         this.numberOfHashFunctions = Integer.parseInt(properties.getProperty("number-hash-functions", "-1"));
@@ -27,6 +31,7 @@ public class BloomFilterConfigurationLoader<T> {
         this.hashingAlgorithm = hashFunction.getHashingAlgorithm();
         Class<?> serializerClass = Class.forName(properties.getProperty("serializer"));
         this.serializer = (Serializer<? super T>) serializerClass.getDeclaredConstructor().newInstance();
+        this.typeBf = properties.getProperty("bf-type", "longfastbloomfilter");
     }
 
     public static <T> BloomFilterConfigurationLoader<T> load(InputStream inputStream) throws IOException {
@@ -41,9 +46,10 @@ public class BloomFilterConfigurationLoader<T> {
         }
     }
 
-    public BloomFilterConfiguration<T> createConfiguration() {
-        return new BloomFilterConfiguration<>(this.bitSetSize, this.expectedNumberOfElements,
+    public BloomFilter<T> createBloomFilter() { //FIXME: dar check
+        BloomFilterConfiguration<T> config = new BloomFilterConfiguration<>(this.bitSetSize, this.expectedNumberOfElements,
                 this.numberOfHashFunctions, this.falsePositiveProbability, this.hashingAlgorithm, this.serializer);
+        return BloomFilterFactoryManager.getFactory(this.typeBf).create(config);
     }
 
 }

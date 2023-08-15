@@ -7,6 +7,10 @@ public final class BloomFilterFactoryManager {
 
     private static final Map<String, BloomFilterFactory> FACTORIES = new HashMap<>();
 
+    static {
+        registerFactory("longfastbloomfilter", new StandardLongBloomFilterFactory());
+    }
+
     private BloomFilterFactoryManager() {
         throw new UnsupportedOperationException("Cannot create instance of " + getClass().getName());
     }
