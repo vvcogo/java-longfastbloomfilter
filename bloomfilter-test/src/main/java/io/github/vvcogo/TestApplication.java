@@ -8,14 +8,12 @@ import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFunction;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Logger;
 
 public class TestApplication {
 
@@ -30,6 +28,8 @@ public class TestApplication {
     private static BloomFilter<String> bf = new StandardLongBloomFilter<>(bc);
 
     public static void main(String[] args) throws InterruptedException {
+
+//        System.out.println(System.out);
 
         if(args.length < 2 || args.length > 4) {
             String filePath = TestApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath();
@@ -85,11 +85,11 @@ public class TestApplication {
         long start = System.currentTimeMillis();
         exec.invokeAll(callInsert);
         long elapsed = System.currentTimeMillis() - start;
-        System.out.printf("\nFinished inserting %o elements in %o ms\n%n", callInsert.size(), elapsed);
+        System.out.printf("\nFinished inserting %s elements in %s ms\n", callInsert.size(), elapsed);
 
         AtomicInteger failCount = new AtomicInteger();
         List<Callable<Object>> callQuery = new ArrayList<>();
-        for(String elem : listQuery){
+        for (String elem : listQuery){
             callQuery.add(Executors.callable(() -> {
                 boolean result = bf.mightContains(elem);
                 System.out.println(String.format("[Thread: %s] QUERY (%s): %s", Thread.currentThread().getName(), elem, result));
@@ -103,8 +103,15 @@ public class TestApplication {
         start = System.currentTimeMillis();
         exec.invokeAll(callQuery);
         elapsed = System.currentTimeMillis() - start;
-        System.out.println(String.format("\nFinished querying %o elements in %o ms", callQuery.size(), elapsed));
-        System.out.println(String.format("%o/%o were false.\n", failCount.get(), callQuery.size()));
+        System.out.println(String.format("\nFinished querying %s elements in %s ms", callQuery.size(), elapsed));
+        System.out.println(String.format("%s/%s were false.", failCount.get(), callQuery.size()));
+        List<String> falsePositives = new ArrayList<>();
+        for (String query : listQuery) {
+            if (bf.mightContains(query) && !listInsert.contains(query)) {
+                falsePositives.add(query);
+            }
+        }
+        System.out.printf("False positives (%s): %s\n\n", falsePositives.size(), falsePositives);
         exec.shutdown();
     }
 
