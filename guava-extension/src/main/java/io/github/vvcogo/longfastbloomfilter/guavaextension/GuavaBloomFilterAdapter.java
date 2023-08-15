@@ -1,4 +1,4 @@
-package io.github.vvcogo;
+package io.github.vvcogo.longfastbloomfilter.guavaextension;
 
 import com.google.common.hash.Funnel;
 import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfiguration;

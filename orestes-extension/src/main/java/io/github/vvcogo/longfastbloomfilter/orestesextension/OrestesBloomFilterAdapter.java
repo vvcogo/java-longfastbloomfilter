@@ -1,4 +1,4 @@
-package io.github.vvcogo;
+package io.github.vvcogo.longfastbloomfilter.orestesextension;
 
 
 import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfiguration;
