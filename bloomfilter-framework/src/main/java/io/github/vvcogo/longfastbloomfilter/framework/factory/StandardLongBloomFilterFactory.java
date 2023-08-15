@@ -10,9 +10,4 @@ public class StandardLongBloomFilterFactory implements BloomFilterFactory {
     public <T> BloomFilter<T> create(BloomFilterConfiguration<T> config) {
         return new StandardLongBloomFilter<>(config);
     }
-
-    @Override
-    public String getFactoryId() {
-        return "longfastbloomfilter";
-    }
 }

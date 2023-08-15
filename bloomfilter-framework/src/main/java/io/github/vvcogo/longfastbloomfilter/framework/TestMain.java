@@ -2,14 +2,14 @@ package io.github.vvcogo.longfastbloomfilter.framework;
 
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.StandardLongBloomFilter;
-import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashAlgorithms;
+import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFunction;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
 
 public class TestMain {
 
     public static void main(String[] args) {
         Serializer<String> serializer = new StringSerializer<>();
-        BloomFilterConfiguration config = new BloomFilterConfiguration(1_000_000, 1_000, 2,0.01, HashAlgorithms.MURMUR_KIRSCH_MITZENMACHER, serializer);
+        BloomFilterConfiguration config = new BloomFilterConfiguration(1_000_000, 1_000, 2,0.01, HashFunction.MURMUR_KIRSCH_MITZENMACHER, serializer);
         BloomFilter<String> bf = new StandardLongBloomFilter<>(config);
         bf.add("hello");
         bf.add("test");

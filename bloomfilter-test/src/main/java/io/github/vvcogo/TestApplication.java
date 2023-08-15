@@ -1,13 +1,17 @@
 package io.github.vvcogo;
 
 import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfiguration;
+import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfigurationLoader;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.StandardLongBloomFilter;
-import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashAlgorithms;
+import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFunction;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
@@ -19,7 +23,7 @@ public class TestApplication {
     private static final long EXP = 10_000;
     private static final int HASH_NUM = 5;
     private static final double POS_RATE = 0.01;
-    private static final HashingAlgorithm HASH_FUNC = HashAlgorithms.MURMUR;
+    private static final HashingAlgorithm HASH_FUNC = HashFunction.MURMUR.getHashingAlgorithm();
     private static Serializer<String> sr = (elem) -> elem.getBytes();
 
     private static BloomFilterConfiguration<String> bc = new BloomFilterConfiguration<>(BIT_SET, EXP, HASH_NUM, POS_RATE, HASH_FUNC, sr);
@@ -27,10 +31,10 @@ public class TestApplication {
 
     public static void main(String[] args) throws InterruptedException {
 
-        if(args.length < 2 || args.length > 3) {
+        if(args.length < 2 || args.length > 4) {
             String filePath = TestApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath();
             String jarFileName = filePath.substring(filePath.lastIndexOf("/"), filePath.length());
-            System.err.println(String.format("Usage: .%s <insert file> <query file> [number of threads]", jarFileName));
+            System.err.println(String.format("Usage: .%s <insert file> <query file> <config file> <number of threads>", jarFileName));
             System.exit(1);
         }
 
@@ -39,8 +43,22 @@ public class TestApplication {
         List<String> listInsert = manageFile(fileInsertPath, "insert");
         List<String> listQuery = manageFile(fileQueryPath, "query");
 
-        int numberOfThreads = Runtime.getRuntime().availableProcessors() - 1;
         if (args.length == 3) {
+            String configFilePath = args[2];
+            try (FileInputStream inputStream = new FileInputStream(new File(configFilePath))) {
+                bc = BloomFilterConfigurationLoader.<String>load(inputStream).createConfiguration();
+            } catch (FileNotFoundException e) {
+                System.err.println("Config file not found!");
+                System.exit(1);
+            } catch (IOException e) {
+                System.err.println("Failed to read config file!");
+                System.exit(1);
+            }
+        }
+
+
+        int numberOfThreads = Runtime.getRuntime().availableProcessors() - 1;
+        if (args.length == 4) {
             int readNumber;
             try {
                 readNumber = Integer.parseInt(args[2]);
