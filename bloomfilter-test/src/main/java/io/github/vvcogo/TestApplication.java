@@ -108,7 +108,7 @@ public class TestApplication {
         start = System.currentTimeMillis();
         exec.invokeAll(callQuery);
         elapsed = System.currentTimeMillis() - start;
-        
+
         PATTERNLESS_LOGGER.info("");
         ROOT_LOGGER.info(String.format("Finished querying %s elements in %s ms", callQuery.size(), elapsed));
         ROOT_LOGGER.info(String.format("%s/%s were false.", failCount.get(), callQuery.size()));
