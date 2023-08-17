@@ -7,14 +7,20 @@ import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.StandardLongBl
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFunction;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class TestApplication {
+
+    private static final Logger ROOT_LOGGER = LoggerFactory.getLogger("");
+    private static final Logger PATTERNLESS_LOGGER = LoggerFactory.getLogger("patternless");
 
     private static final long BIT_SET = Integer.MAX_VALUE;
     private static final long EXP = 10_000;
@@ -28,12 +34,13 @@ public class TestApplication {
 
     public static void main(String[] args) throws InterruptedException {
 
-//        System.out.println(System.out);
+        System.out.println("PRESS TO START");
+        new Scanner(System.in).nextLine();
 
         if(args.length < 2 || args.length > 4) {
             String filePath = TestApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath();
             String jarFileName = filePath.substring(filePath.lastIndexOf("/"));
-            System.err.println(String.format("Usage: .%s <insert file> <query file> <config file> <number of threads>", jarFileName));
+            ROOT_LOGGER.error(String.format("Usage: .%s <insert file> <query file> <config file> <number of threads>", jarFileName));
             System.exit(1);
         }
 
@@ -47,10 +54,10 @@ public class TestApplication {
             try (FileInputStream inputStream = new FileInputStream(new File(configFilePath))) {
                 bf = BloomFilterConfigurationLoader.<String>load(inputStream).createBloomFilter();
             } catch (FileNotFoundException e) {
-                System.err.println("Config file not found!");
+                ROOT_LOGGER.error("Config file not found!");
                 System.exit(1);
             } catch (IOException e) {
-                System.err.println("Failed to read config file!");
+                ROOT_LOGGER.error("Failed to read config file!");
                 System.exit(1);
             }
         }
@@ -61,48 +68,50 @@ public class TestApplication {
             try {
                 readNumber = Integer.parseInt(args[3]);
                 if (readNumber <= 0) {
-                    System.err.println("Number of threads cannot be smaller than 1! Using: ");
+                    ROOT_LOGGER.error("Number of threads cannot be smaller than 1! Using: ");
                 } else {
                     numberOfThreads = readNumber;
                 }
             } catch (NumberFormatException e) {
-                System.err.println("Could not read number of threads!");
+                ROOT_LOGGER.error("Could not read number of threads!");
             }
         }
 
         //threads---------------
-        System.out.println("\nCreating Thread Pool with " + numberOfThreads + " threads.\n");
+        ROOT_LOGGER.info("Creating Thread Pool with " + numberOfThreads + " threads.\n");
         ExecutorService exec = Executors.newFixedThreadPool(numberOfThreads);
 
         List<Callable<Object>> callInsert = new ArrayList<>();
         for(String elem : listInsert){
             callInsert.add(Executors.callable(() -> {
                 bf.add(elem);
-                System.out.printf("[Thread: %s] INSERTED: %s%n", Thread.currentThread().getName(), elem);
+                ROOT_LOGGER.info("INSERTED: " + elem);
             } ));
         }
         long start = System.currentTimeMillis();
         exec.invokeAll(callInsert);
         long elapsed = System.currentTimeMillis() - start;
-        System.out.printf("\nFinished inserting %s elements in %s ms\n", callInsert.size(), elapsed);
+        PATTERNLESS_LOGGER.info("");
+        ROOT_LOGGER.info(String.format("Finished inserting %s elements in %s ms%n", callInsert.size(), elapsed));
 
         AtomicInteger failCount = new AtomicInteger();
         List<Callable<Object>> callQuery = new ArrayList<>();
         for (String elem : listQuery){
             callQuery.add(Executors.callable(() -> {
                 boolean result = bf.mightContains(elem);
-                System.out.println(String.format("[Thread: %s] QUERY (%s): %s", Thread.currentThread().getName(), elem, result));
+                ROOT_LOGGER.info(String.format("QUERY (%s): %s", elem, result));
                 if (!result)
                     failCount.getAndIncrement();
             }));
         }
-        System.out.println();
 
         start = System.currentTimeMillis();
         exec.invokeAll(callQuery);
         elapsed = System.currentTimeMillis() - start;
-        System.out.println(String.format("\nFinished querying %s elements in %s ms", callQuery.size(), elapsed));
-        System.out.println(String.format("%s/%s were false.", failCount.get(), callQuery.size()));
+        
+        PATTERNLESS_LOGGER.info("");
+        ROOT_LOGGER.info(String.format("Finished querying %s elements in %s ms", callQuery.size(), elapsed));
+        ROOT_LOGGER.info(String.format("%s/%s were false.", failCount.get(), callQuery.size()));
 
         List<String> falsePositives = new ArrayList<>();
         for (String query : listQuery) {
@@ -110,7 +119,11 @@ public class TestApplication {
                 falsePositives.add(query);
             }
         }
-        System.out.printf("False positives (%s): %s\n\n", falsePositives.size(), falsePositives);
+        if (falsePositives.isEmpty()) {
+            ROOT_LOGGER.info("No false positives were found!");
+        } else {
+            ROOT_LOGGER.info(String.format("False positives (%s): %s%n", falsePositives.size(), falsePositives));
+        }
         exec.shutdown();
     }
 
@@ -119,7 +132,7 @@ public class TestApplication {
         try {
             result = FileReader.readFile(path);
         } catch (FileNotFoundException e) {
-            System.err.println("Can not read " + type + " file.");
+            ROOT_LOGGER.error("Can not read " + type + " file.");
             e.printStackTrace();
             System.exit(1);
         }
