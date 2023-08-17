@@ -17,8 +17,7 @@ public final class BloomFilterFactoryManager {
 
     public static void registerFactory(String id, BloomFilterFactory factory) {
         if (FACTORIES.containsKey(id)) {
-            // FIXME: exception
-            throw new RuntimeException("Factory already exists.");
+            throw new IllegalArgumentException("Factory with id " + id + " already exists!");
         }
         FACTORIES.put(id, factory);
     }
