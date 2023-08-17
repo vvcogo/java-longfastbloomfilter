@@ -3,7 +3,6 @@ package io.github.vvcogo;
 import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfiguration;
 import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfigurationLoader;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
-import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.StandardLongBloomFilter;
 import io.github.vvcogo.longfastbloomfilter.framework.factory.BloomFilterCreator;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFunction;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
