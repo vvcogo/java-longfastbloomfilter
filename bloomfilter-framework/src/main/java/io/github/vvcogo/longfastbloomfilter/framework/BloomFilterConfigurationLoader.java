@@ -39,12 +39,12 @@ public class BloomFilterConfigurationLoader<T> {
         if (properties.containsKey("bitset-size")) {
             this.bitSetSize = Long.parseLong(properties.getProperty("bitset-size"));
             long maxElements = BloomFilterCalculations.calculateMaxNumberOfElements(this.bitSetSize, this.falsePositiveProbability);
-            if (properties.containsKey("expected-elements")) {
+            if (!properties.containsKey("expected-elements")) {
                 this.expectedNumberOfElements = maxElements;
             } else {
                 this.expectedNumberOfElements = Long.parseLong(properties.getProperty("expected-elements"));
                 if (this.expectedNumberOfElements > maxElements) {
-                    throw new InvalidConfigurationException("The especified number of expected elements is greated than the max allowed for the specified bitset size and false positive probability");
+                    throw new InvalidConfigurationException("The specified number of expected elements is greater than the max allowed for the specified bitset size and false positive probability");
                 }
             }
         } else if (properties.containsKey("expected-elements")) {
@@ -54,8 +54,8 @@ public class BloomFilterConfigurationLoader<T> {
                 this.bitSetSize = minBitSetSize;
             } else {
                 this.bitSetSize = Long.parseLong(properties.getProperty("bitset-size"));
-                if (this.bitSetSize > minBitSetSize) {
-                    throw new InvalidConfigurationException("The especified number of expected elements is greated than the max allowed for the specified bitset size and false positive probability");
+                if (this.bitSetSize < minBitSetSize) {
+                    throw new InvalidConfigurationException("The specified bitset size is smaller than the minimum required for the specified expected number of elements and false positive probability");
                 }
             }
         } else {
