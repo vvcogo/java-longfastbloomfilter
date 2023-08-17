@@ -9,14 +9,14 @@ public class LongBitSet extends AbstractLongBitSet {
     }
 
     @Override
-    protected void set(int arrayIndex, int elementIndex) {
-        long bitMask = 1L << elementIndex;
+    protected void set(int arrayIndex, int elementIndex, long bitIndex) {
+        long bitMask = 1L << bitIndex;
         this.bits[arrayIndex][elementIndex] |= bitMask;
     }
 
     @Override
-    protected boolean get(int arrayIndex, int elementIndex) {
-        long bitMask = 1L << elementIndex;
+    protected boolean get(int arrayIndex, int elementIndex, long bitIndex) {
+        long bitMask = 1L << bitIndex;
         long value = this.bits[arrayIndex][elementIndex];
         return (value & bitMask) != 0L;
     }

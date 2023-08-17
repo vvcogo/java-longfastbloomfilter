@@ -21,15 +21,17 @@ public abstract class AbstractLongBitSet implements BitSet {
     public void set(long index) {
         int arrayIndex = getArrayIndex(index);
         int elementIndex = getElementIndex(index);
+        long bitIndex = getBitIndex(index);
         this.empty = false;
-        set(arrayIndex, elementIndex);
+        set(arrayIndex, elementIndex, bitIndex);
     }
 
     @Override
     public boolean get(long index) {
         int arrayIndex = getArrayIndex(index);
         int elementIndex = getElementIndex(index);
-        return get(arrayIndex, elementIndex);
+        long bitIndex = getBitIndex(index);
+        return get(arrayIndex, elementIndex, bitIndex);
     }
 
     @Override
@@ -60,9 +62,13 @@ public abstract class AbstractLongBitSet implements BitSet {
         return (int) (remaining / 64);
     }
 
-    protected abstract void set(int arrayIndex, int elementIndex);
+    private long getBitIndex(long index) {
+        return index % SINGLE_ARRAY_MAX_BIT_SIZE;
+    }
 
-    protected abstract boolean get(int arrayIndex, int elementIndex);
+    protected abstract void set(int arrayIndex, int elementIndex, long bitIndex);
+
+    protected abstract boolean get(int arrayIndex, int elementIndex, long bitIndex);
 
     protected abstract void initializeBitArray(int numberOfArrays, int lastArraySize);
 }

@@ -2,6 +2,7 @@ package io.github.vvcogo;
 
 import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfiguration;
 import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfigurationLoader;
+import io.github.vvcogo.longfastbloomfilter.framework.InvalidConfigurationException;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.StandardLongBloomFilter;
 import io.github.vvcogo.longfastbloomfilter.framework.factory.BloomFilterCreator;
@@ -23,15 +24,6 @@ public class TestApplication {
     private static final Logger ROOT_LOGGER = LoggerFactory.getLogger("");
     private static final Logger PATTERNLESS_LOGGER = LoggerFactory.getLogger("patternless");
 
-    private static final long BIT_SET = Integer.MAX_VALUE;
-    private static final long EXP = 10_000;
-    private static final int HASH_NUM = 5;
-    private static final double POS_RATE = 0.01;
-    private static final HashingAlgorithm HASH_FUNC = HashFunction.MURMUR.getHashingAlgorithm();
-    private static final Serializer<String> sr = String::getBytes;
-
-    private static BloomFilterConfiguration<String> bc = new BloomFilterConfiguration<>(BIT_SET, EXP, HASH_NUM, POS_RATE, HASH_FUNC, "longfastbloomfilter", sr);
-
     public static void main(String[] args) throws InterruptedException {
 
         if(args.length < 2 || args.length > 4) {
@@ -46,9 +38,10 @@ public class TestApplication {
         List<String> listInsert = manageFile(fileInsertPath, "insert");
         List<String> listQuery = manageFile(fileQueryPath, "query");
 
-        if (args.length == 3) {
+        BloomFilterConfiguration<String> bc = null;
+        if (args.length >= 3) {
             String configFilePath = args[2];
-            try (FileInputStream inputStream = new FileInputStream(new File(configFilePath))) {
+            try (FileInputStream inputStream = new FileInputStream(configFilePath)) {
                 Properties props = new Properties();
                 props.load(inputStream);
                 bc = new BloomFilterConfigurationLoader<String>(props).getConfiguration();
@@ -58,10 +51,14 @@ public class TestApplication {
             } catch (IOException e) {
                 ROOT_LOGGER.error("Failed to read config file!");
                 System.exit(1);
+            } catch (InvalidConfigurationException e) {
+                ROOT_LOGGER.error("Configuration was invalid! " + e.getMessage());
+                System.exit(1);
             }
         }
 
         BloomFilter<String> bf = BloomFilterCreator.createBloomFilter(bc);
+        ROOT_LOGGER.info("Created bloomfilter with this configuration: " + bc.toString());
 
         int numberOfThreads = Runtime.getRuntime().availableProcessors() - 1;
         if (args.length == 4) {
@@ -126,6 +123,7 @@ public class TestApplication {
             ROOT_LOGGER.info(String.format("False positives (%s): %s%n", falsePositives.size(), falsePositives));
         }
         exec.shutdown();
+        System.out.println(bf.toString());
     }
 
     public static List<String> manageFile(String path, String type){
