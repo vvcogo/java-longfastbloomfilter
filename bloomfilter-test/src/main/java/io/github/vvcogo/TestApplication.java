@@ -4,6 +4,7 @@ import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfiguration;
 import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfigurationLoader;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.StandardLongBloomFilter;
+import io.github.vvcogo.longfastbloomfilter.framework.factory.BloomFilterCreator;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFunction;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
@@ -13,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -28,8 +30,7 @@ public class TestApplication {
     private static final HashingAlgorithm HASH_FUNC = HashFunction.MURMUR.getHashingAlgorithm();
     private static final Serializer<String> sr = String::getBytes;
 
-    private static final BloomFilterConfiguration<String> bc = new BloomFilterConfiguration<>(BIT_SET, EXP, HASH_NUM, POS_RATE, HASH_FUNC, sr);
-    private static BloomFilter<String> bf = new StandardLongBloomFilter<>(bc);
+    private static BloomFilterConfiguration<String> bc = new BloomFilterConfiguration<>(BIT_SET, EXP, HASH_NUM, POS_RATE, HASH_FUNC, "longfastbloomfilter", sr);
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -48,7 +49,9 @@ public class TestApplication {
         if (args.length == 3) {
             String configFilePath = args[2];
             try (FileInputStream inputStream = new FileInputStream(new File(configFilePath))) {
-                bf = BloomFilterConfigurationLoader.<String>load(inputStream).createBloomFilter();
+                Properties props = new Properties();
+                props.load(inputStream);
+                bc = new BloomFilterConfigurationLoader<String>(props).getConfiguration();
             } catch (FileNotFoundException e) {
                 ROOT_LOGGER.error("Config file not found!");
                 System.exit(1);
@@ -57,6 +60,8 @@ public class TestApplication {
                 System.exit(1);
             }
         }
+
+        BloomFilter<String> bf = BloomFilterCreator.createBloomFilter(bc);
 
         int numberOfThreads = Runtime.getRuntime().availableProcessors() - 1;
         if (args.length == 4) {
