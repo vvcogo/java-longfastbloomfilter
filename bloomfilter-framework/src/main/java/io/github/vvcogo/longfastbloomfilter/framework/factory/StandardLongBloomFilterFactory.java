@@ -6,6 +6,7 @@ import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.StandardLongBl
 
 public class StandardLongBloomFilterFactory implements BloomFilterFactory {
 
+
     @Override
     public <T> BloomFilter<T> create(BloomFilterConfiguration<T> config) {
         return new StandardLongBloomFilter<>(config);
