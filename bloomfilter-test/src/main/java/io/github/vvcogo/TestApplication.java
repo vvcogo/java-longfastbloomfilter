@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -27,15 +26,12 @@ public class TestApplication {
     private static final int HASH_NUM = 5;
     private static final double POS_RATE = 0.01;
     private static final HashingAlgorithm HASH_FUNC = HashFunction.MURMUR.getHashingAlgorithm();
-    private static Serializer<String> sr = (elem) -> elem.getBytes();
+    private static final Serializer<String> sr = String::getBytes;
 
-    private static BloomFilterConfiguration<String> bc = new BloomFilterConfiguration<>(BIT_SET, EXP, HASH_NUM, POS_RATE, HASH_FUNC, sr);
+    private static final BloomFilterConfiguration<String> bc = new BloomFilterConfiguration<>(BIT_SET, EXP, HASH_NUM, POS_RATE, HASH_FUNC, sr);
     private static BloomFilter<String> bf = new StandardLongBloomFilter<>(bc);
 
     public static void main(String[] args) throws InterruptedException {
-
-        System.out.println("PRESS TO START");
-        new Scanner(System.in).nextLine();
 
         if(args.length < 2 || args.length > 4) {
             String filePath = TestApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath();
