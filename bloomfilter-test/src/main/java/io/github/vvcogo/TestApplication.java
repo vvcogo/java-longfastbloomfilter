@@ -103,6 +103,7 @@ public class TestApplication {
         elapsed = System.currentTimeMillis() - start;
         System.out.println(String.format("\nFinished querying %s elements in %s ms", callQuery.size(), elapsed));
         System.out.println(String.format("%s/%s were false.", failCount.get(), callQuery.size()));
+
         List<String> falsePositives = new ArrayList<>();
         for (String query : listQuery) {
             if (bf.mightContains(query) && !listInsert.contains(query)) {
