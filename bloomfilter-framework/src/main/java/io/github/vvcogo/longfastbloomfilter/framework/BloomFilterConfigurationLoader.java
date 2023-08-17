@@ -80,8 +80,7 @@ public class BloomFilterConfigurationLoader<T> {
 
     public BloomFilterConfiguration<T> getConfiguration() {
         return new BloomFilterConfiguration<>(this.bitSetSize, this.expectedNumberOfElements,
-                this.numberOfHashFunctions, this.falsePositiveProbability, this.hashingAlgorithm, this.serializer,
-                this.bloomFilterType);
+                this.numberOfHashFunctions, this.falsePositiveProbability, this.hashingAlgorithm, this.bloomFilterType, this.serializer);
     }
 
 }
