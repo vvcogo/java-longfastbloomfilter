@@ -8,9 +8,6 @@ import io.github.vvcogo.longfastbloomfilter.framework.extensions.BloomFilterExte
 import io.github.vvcogo.longfastbloomfilter.framework.extensions.ExtensionProperties;
 import io.github.vvcogo.longfastbloomfilter.framework.extensions.JavaExtensionLoader;
 import io.github.vvcogo.longfastbloomfilter.framework.factory.BloomFilterCreator;
-import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFunction;
-import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
-import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +23,7 @@ public class TestApplication {
 
     private static final Logger ROOT_LOGGER = LoggerFactory.getLogger("");
     private static final Logger PATTERNLESS_LOGGER = LoggerFactory.getLogger("patternless");
-    private static final File EXTENSIONS_DIRECTORY = new File("extensions");
+    private static final File EXTENSIONS_DIRECTORY = new File("extensions/");
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -74,7 +71,6 @@ public class TestApplication {
         }
 
         BloomFilter<String> bf = BloomFilterCreator.createBloomFilter(bc);
-        ROOT_LOGGER.info("Created bloomfilter with this configuration: " + bc.toString());
 
         int numberOfThreads = Runtime.getRuntime().availableProcessors() - 1;
         if (args.length == 4) {
@@ -139,7 +135,6 @@ public class TestApplication {
             ROOT_LOGGER.info(String.format("False positives (%s): %s%n", falsePositives.size(), falsePositives));
         }
         exec.shutdown();
-        System.out.println(bf.toString());
     }
 
     public static List<String> manageFile(String path, String type){

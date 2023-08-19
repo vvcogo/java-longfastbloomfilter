@@ -23,7 +23,7 @@ public class JavaExtensionLoader implements ExtensionLoader {
         ExtensionProperties properties = loadExtensionProperties(file);
         try {
             URLClassLoader classLoader = new URLClassLoader(new URL[]{file.toURI().toURL()}, getClass().getClassLoader());
-            Class<?> mainClazz = Class.forName(properties.getMainClassName());
+            Class<?> mainClazz = Class.forName(properties.getMainClassName(), true, classLoader);
             BloomFilterExtension instance = (BloomFilterExtension) mainClazz.getConstructor().newInstance();
             ExtensionData data = new ExtensionData(instance, properties, classLoader);
             this.loadedExtensions.put(properties.getName(), data);
