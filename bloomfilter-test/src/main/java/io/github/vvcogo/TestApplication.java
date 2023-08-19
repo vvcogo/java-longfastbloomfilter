@@ -4,6 +4,9 @@ import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfiguration;
 import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfigurationLoader;
 import io.github.vvcogo.longfastbloomfilter.framework.InvalidConfigurationException;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
+import io.github.vvcogo.longfastbloomfilter.framework.extensions.BloomFilterExtension;
+import io.github.vvcogo.longfastbloomfilter.framework.extensions.ExtensionProperties;
+import io.github.vvcogo.longfastbloomfilter.framework.extensions.JavaExtensionLoader;
 import io.github.vvcogo.longfastbloomfilter.framework.factory.BloomFilterCreator;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFunction;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
@@ -15,6 +18,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -22,6 +26,7 @@ public class TestApplication {
 
     private static final Logger ROOT_LOGGER = LoggerFactory.getLogger("");
     private static final Logger PATTERNLESS_LOGGER = LoggerFactory.getLogger("patternless");
+    private static final File EXTENSIONS_DIRECTORY = new File("extensions");
 
     public static void main(String[] args) throws InterruptedException {
 
@@ -30,6 +35,18 @@ public class TestApplication {
             String jarFileName = filePath.substring(filePath.lastIndexOf("/"));
             ROOT_LOGGER.error(String.format("Usage: .%s <insert file> <query file> <config file> <number of threads>", jarFileName));
             System.exit(1);
+        }
+
+        JavaExtensionLoader extensionLoader = new JavaExtensionLoader();
+        loadExtensions(extensionLoader);
+
+        Set<String> loaded = extensionLoader.getLoadedExtensions();
+        if (!loaded.isEmpty()) {
+            ROOT_LOGGER.info("LOADED EXTENSIONS:");
+            for (String extension : loaded) {
+                ExtensionProperties properties = extensionLoader.getLoadedExtensionsData().get(extension).getProperties();
+                ROOT_LOGGER.info(String.format("\t> %s v%s", properties.getName(), properties.getVersion()));
+            }
         }
 
         String fileInsertPath = args[0];
@@ -135,5 +152,21 @@ public class TestApplication {
             System.exit(1);
         }
         return result;
+    }
+
+    private static void loadExtensions(JavaExtensionLoader loader) {
+        ROOT_LOGGER.info("Trying to load extensions from " + EXTENSIONS_DIRECTORY.getAbsolutePath());
+        if (!EXTENSIONS_DIRECTORY.isDirectory())
+            return;
+        File[] files = EXTENSIONS_DIRECTORY.listFiles();
+        if (files == null)
+            return;
+        for (File file : files) {
+            if (file.getName().endsWith(".jar")) {
+                ROOT_LOGGER.info("LOADING: " + file.getName());
+                BloomFilterExtension extension = loader.loadExtension(file);
+                extension.onInit();
+            }
+        }
     }
 }
