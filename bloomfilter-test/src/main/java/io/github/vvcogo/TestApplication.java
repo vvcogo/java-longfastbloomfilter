@@ -41,7 +41,7 @@ public class TestApplication {
         if (!loaded.isEmpty()) {
             ROOT_LOGGER.info("LOADED EXTENSIONS:");
             for (String extension : loaded) {
-                ExtensionProperties properties = extensionLoader.getLoadedExtensionsData().get(extension).getProperties();
+                ExtensionProperties properties = extensionLoader.getLoadedExtensionsData().get(extension).properties();
                 ROOT_LOGGER.info(String.format("\t> %s v%s", properties.getName(), properties.getVersion()));
             }
         }
