@@ -11,22 +11,62 @@ import java.util.Properties;
 
 public class BloomFilterConfigurationLoader<T> {
 
-    private final HashingAlgorithm hashingAlgorithm;
-    private final Serializer<? super T> serializer;
+    private HashingAlgorithm hashingAlgorithm;
+    private Serializer<? super T> serializer;
     private final String bloomFilterType;
     private final double falsePositiveProbability;
-    private final long expectedNumberOfElements;
-    private final long bitSetSize;
-    private final int numberOfHashFunctions;
+    private long expectedNumberOfElements;
+    private long bitSetSize;
+    private int numberOfHashFunctions;
+    private final String[] optionalConfig = {"bitset-size", "expected-elements", "number-hash-functions", "hash-function", "serializer"};
 
     public BloomFilterConfigurationLoader(Properties properties) {
+
         checkRequiredProperties(properties);
+        checkOptionalProperties(properties);
+
+        checkHashFunction(properties);
+        checkSerializer(properties);
+        this.bloomFilterType = properties.getProperty("bloomfilter-type");
+        this.falsePositiveProbability = Double.parseDouble(properties.getProperty("false-positive-probability"));
+        checkBitsetSizeAndExpectedElements(properties);
+        checkNumHashFunc(properties);
+    }
+
+    public BloomFilterConfiguration<T> getConfiguration() {
+        return new BloomFilterConfiguration<>(this.bitSetSize, this.expectedNumberOfElements,
+                this.numberOfHashFunctions, this.falsePositiveProbability, this.hashingAlgorithm, this.bloomFilterType, this.serializer);
+    }
+
+    private void checkRequiredProperties(Properties properties) {
+        if (!properties.containsKey("bloomfilter-type")) {
+            throw new InvalidConfigurationException("Type of bloomfilter is not specified!");
+        }
+        if (!properties.containsKey("false-positive-probability")) {
+            throw new InvalidConfigurationException("False positive probability is not specified!");
+        }
+    }
+
+    private void checkOptionalProperties(Properties properties) {
+        int numberOfOptionalProps = 0;
+        for (String elemArr : optionalConfig) {
+            if(properties.containsKey(elemArr))
+                numberOfOptionalProps++;
+        }
+        if(numberOfOptionalProps < 2)
+            throw new InvalidConfigurationException("The number of optional parameters specified in the configuration must be at least 2!");
+    }
+
+    private void checkHashFunction(Properties properties){
         String hashFunction = properties.getProperty("hash-function", HashFunction.MURMUR_KIRSCH_MITZENMACHER.toString());
         try {
             this.hashingAlgorithm = HashFunction.valueOf(hashFunction).getHashingAlgorithm();
         } catch (IllegalArgumentException e) {
             throw new InvalidConfigurationException("Specified hash function does not exists!", e);
         }
+    }
+
+    private void checkSerializer(Properties properties) {
         String serializerClass = properties.getProperty("serializer", JavaObjectSerializer.class.toString());
         try {
             this.serializer = SerializerFactory.createSerializer(serializerClass);
@@ -34,8 +74,10 @@ public class BloomFilterConfigurationLoader<T> {
                  IllegalAccessException e) {
             throw new InvalidConfigurationException("Failed to create instance of specified serializer", e);
         }
-        this.bloomFilterType = properties.getProperty("bloomfilter-type");
-        this.falsePositiveProbability = Double.parseDouble(properties.getProperty("false-positive-probability"));
+    }
+
+    private void checkBitsetSizeAndExpectedElements(Properties properties) {
+
         if (properties.containsKey("bitset-size")) {
             this.bitSetSize = Long.parseLong(properties.getProperty("bitset-size"));
             long maxElements = BloomFilterCalculations.calculateMaxNumberOfElements(this.bitSetSize, this.falsePositiveProbability);
@@ -61,26 +103,16 @@ public class BloomFilterConfigurationLoader<T> {
         } else {
             throw new InvalidConfigurationException("BloomFilter requires bitset size or expected elements to be specified!");
         }
+    }
+
+    private void checkNumHashFunc(Properties properties) {
+        int optimalHash = BloomFilterCalculations.calculateOptimalNumberOfHashFunctions(this.bitSetSize, this.expectedNumberOfElements);
         if (properties.containsKey("number-hash-functions")) {
             this.numberOfHashFunctions = Integer.parseInt(properties.getProperty("number-hash-functions"));
-//            int optimalHash = BloomFilterCalculations.calculateOptimalNumberOfHashFunctions(this.bitSetSize, this.expectedNumberOfElements);
+            if(this.numberOfHashFunctions < optimalHash)
+                throw new InvalidConfigurationException("The specified number of hash functions must be greater for the specified bitset size and expected number of elements!");
         } else {
-            this.numberOfHashFunctions = BloomFilterCalculations.calculateOptimalNumberOfHashFunctions(this.bitSetSize, this.expectedNumberOfElements);
+            this.numberOfHashFunctions = optimalHash;
         }
     }
-
-    private void checkRequiredProperties(Properties properties) {
-        if (!properties.containsKey("bloomfilter-type")) {
-            throw new InvalidConfigurationException("Type of bloomfilter is not specified!");
-        }
-        if (!properties.containsKey("false-positive-probability")) {
-            throw new InvalidConfigurationException("False positive probability is not specified!");
-        }
-    }
-
-    public BloomFilterConfiguration<T> getConfiguration() {
-        return new BloomFilterConfiguration<>(this.bitSetSize, this.expectedNumberOfElements,
-                this.numberOfHashFunctions, this.falsePositiveProbability, this.hashingAlgorithm, this.bloomFilterType, this.serializer);
-    }
-
 }
