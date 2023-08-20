@@ -18,17 +18,19 @@ public class BloomFilterConfigurationLoader<T> {
     private long expectedNumberOfElements;
     private long bitSetSize;
     private int numberOfHashFunctions;
-    private final String[] optionalConfig = {"bitset-size", "expected-elements", "number-hash-functions", "hash-function", "serializer"};
+    private final String[] optionalConfig = {"bitset-size", "expected-elements", "number-hash-functions"};
 
     public BloomFilterConfigurationLoader(Properties properties) {
-
         checkRequiredProperties(properties);
         checkOptionalProperties(properties);
-
         checkHashFunction(properties);
         checkSerializer(properties);
         this.bloomFilterType = properties.getProperty("bloomfilter-type");
-        this.falsePositiveProbability = Double.parseDouble(properties.getProperty("false-positive-probability"));
+        try {
+            this.falsePositiveProbability = Double.parseDouble(properties.getProperty("false-positive-probability"));
+        } catch (NumberFormatException e) {
+            throw new InvalidConfigurationException("False positive probability needs to be a number!", e);
+        }
         checkBitsetSizeAndExpectedElements(properties);
         checkNumHashFunc(properties);
     }
@@ -77,7 +79,6 @@ public class BloomFilterConfigurationLoader<T> {
     }
 
     private void checkBitsetSizeAndExpectedElements(Properties properties) {
-
         if (properties.containsKey("bitset-size")) {
             this.bitSetSize = Long.parseLong(properties.getProperty("bitset-size"));
             long maxElements = BloomFilterCalculations.calculateMaxNumberOfElements(this.bitSetSize, this.falsePositiveProbability);
