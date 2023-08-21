@@ -6,7 +6,7 @@ public final class BloomFilterCalculations {
     private static final double LN_2 = Math.log(2);
     private static final double LN_2_SQUARED = Math.pow(LN_2, 2);
 
-    
+
     private BloomFilterCalculations() {
         throw new UnsupportedOperationException("Cannot created instance of " + getClass().getName());
     }
