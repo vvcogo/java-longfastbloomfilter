@@ -18,7 +18,7 @@ public class BloomFilterConfigurationLoader<T> {
     private long expectedNumberOfElements;
     private long bitSetSize;
     private int numberOfHashFunctions;
-    private final String[] optionalConfig = {"bitset-size", "expected-elements", "number-hash-functions"};
+    private final String[] optionalConfig = {"bitset-size", "expected-elements", "number-hash-functions", "false-positive-probability"};
 
     public BloomFilterConfigurationLoader(Properties properties) {
         checkRequiredProperties(properties);
