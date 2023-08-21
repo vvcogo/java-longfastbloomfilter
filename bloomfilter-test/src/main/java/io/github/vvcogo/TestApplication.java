@@ -45,8 +45,8 @@ public class TestApplication {
 
         String fileInsertPath = args[0];
         String fileQueryPath = args[1];
-        List<String> listInsert = manageFile(fileInsertPath, "insert");
-        List<String> listQuery = manageFile(fileQueryPath, "query");
+        Set<String> listInsert = manageFile(fileInsertPath, "insert");
+        Set<String> listQuery = manageFile(fileQueryPath, "query");
 
         BloomFilterConfiguration<String> bc = null;
         if (args.length >= 3) {
@@ -120,12 +120,9 @@ public class TestApplication {
         ROOT_LOGGER.info(String.format("Finished querying %s elements in %s ms", callQuery.size(), elapsed));
         ROOT_LOGGER.info(String.format("%s/%s were false.", failCount.get(), callQuery.size()));
 
-        Set<String> insertSet = new HashSet<>(listInsert);
-        listInsert.clear();
-
         List<String> falsePositives = new ArrayList<>();
         for (String query : listQuery) {
-            if (bf.mightContains(query) && !insertSet.contains(query)) {
+            if (bf.mightContains(query) && !listInsert.contains(query)) {
                 falsePositives.add(query);
             }
         }
@@ -137,8 +134,8 @@ public class TestApplication {
         exec.shutdown();
     }
 
-    public static List<String> manageFile(String path, String type){
-        List<String> result = null;
+    public static Set<String> manageFile(String path, String type){
+        Set<String> result = null;
         try {
             result = FileReader.readFile(path);
         } catch (FileNotFoundException e) {
