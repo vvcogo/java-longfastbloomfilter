@@ -16,8 +16,6 @@
             <PatternLayout pattern="${LOG_PATTERN}"/>
         </File>
         <File name="patternless-log-file" fileName="logs/${LOG-FILE-NAME}">
-            <PatternLayout pattern="%m%n"/>
-        </File>
     </Appenders>
 
     <Loggers>
