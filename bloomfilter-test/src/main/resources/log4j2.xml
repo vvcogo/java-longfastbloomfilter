@@ -11,14 +11,22 @@
         <Console name="patternless-console" target="SYSTEM_OUT" follow="true">
             <PatternLayout pattern="%m%n"/>
         </Console>
+        <File name="log-file" fileName="logs/guava.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </File>
+        <File name="patternless-log-file" fileName="logs/guava.log">
+            <PatternLayout pattern="%m%n"/>
+        </File>
     </Appenders>
 
     <Loggers>
         <Logger name="patternless" level="debug" additivity="false">
             <AppenderRef ref="patternless-console"/>
+            <AppenderRef ref="patternless-log-file"/>
         </Logger>
         <Root level="info">
             <AppenderRef ref="console"/>
+            <AppenderRef ref="log-file"/>
         </Root>
     </Loggers>
 </Configuration>
