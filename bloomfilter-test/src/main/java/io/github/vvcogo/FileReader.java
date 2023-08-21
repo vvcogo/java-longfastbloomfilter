@@ -10,8 +10,8 @@ public final class FileReader {
         throw new UnsupportedOperationException("Can not create an instance of FileReader class.");
     }
 
-    public static Set<String> readFile(String path) throws FileNotFoundException {
-        Set<String> result = new HashSet<>();
+    public static List<String> readFile(String path) throws FileNotFoundException {
+        List<String> result = new ArrayList<>();
         try(Scanner sc = new Scanner(new File(path))) {
             while(sc.hasNextLine())
                 result.add(sc.nextLine());
