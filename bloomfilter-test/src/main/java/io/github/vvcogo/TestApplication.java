@@ -47,7 +47,6 @@ public class TestApplication {
         String fileQueryPath = args[1];
         List<String> listInsert = manageFile(fileInsertPath, "insert");
         List<String> listQuery = manageFile(fileQueryPath, "query");
-        Set<String> insertSet = new HashSet<>(listInsert);
 
         BloomFilterConfiguration<String> bc = null;
         if (args.length >= 3) {
@@ -120,6 +119,9 @@ public class TestApplication {
         PATTERNLESS_LOGGER.info("");
         ROOT_LOGGER.info(String.format("Finished querying %s elements in %s ms", callQuery.size(), elapsed));
         ROOT_LOGGER.info(String.format("%s/%s were false.", failCount.get(), callQuery.size()));
+
+        Set<String> insertSet = new HashSet<>(listInsert);
+        listInsert.clear();
 
         List<String> falsePositives = new ArrayList<>();
         for (String query : listQuery) {
