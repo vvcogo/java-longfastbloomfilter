@@ -12,10 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -50,6 +47,7 @@ public class TestApplication {
         String fileQueryPath = args[1];
         List<String> listInsert = manageFile(fileInsertPath, "insert");
         List<String> listQuery = manageFile(fileQueryPath, "query");
+        Set<String> insertSet = new HashSet<>(listInsert);
 
         BloomFilterConfiguration<String> bc = null;
         if (args.length >= 3) {
@@ -125,7 +123,7 @@ public class TestApplication {
 
         List<String> falsePositives = new ArrayList<>();
         for (String query : listQuery) {
-            if (bf.mightContains(query) && !listInsert.contains(query)) {
+            if (bf.mightContains(query) && !insertSet.contains(query)) {
                 falsePositives.add(query);
             }
         }
