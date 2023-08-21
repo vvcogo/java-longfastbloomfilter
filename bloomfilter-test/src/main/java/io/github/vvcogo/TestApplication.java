@@ -17,7 +17,6 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class TestApplication {
-
     private static final Logger ROOT_LOGGER = LoggerFactory.getLogger("");
     private static final Logger PATTERNLESS_LOGGER = LoggerFactory.getLogger("patternless");
     private static final File EXTENSIONS_DIRECTORY = new File("extensions/");
