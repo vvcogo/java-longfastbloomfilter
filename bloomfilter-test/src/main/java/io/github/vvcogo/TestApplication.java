@@ -24,7 +24,7 @@ public final class TestApplication {
 
     public static void main(String[] args) throws InterruptedException {
         checkArguments(args);
-        
+
         // for use with jConsole
         Thread.sleep(3000);
 
