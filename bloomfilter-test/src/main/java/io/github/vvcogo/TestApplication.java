@@ -33,7 +33,7 @@ public class TestApplication {
             ROOT_LOGGER.error(String.format("Usage: .%s <insert file> <query file> <config file> <number of threads>", jarFileName));
             System.exit(1);
         }
-
+        Thread.sleep(2000);
         JavaExtensionLoader extensionLoader = new JavaExtensionLoader();
         loadExtensions(extensionLoader);
 
