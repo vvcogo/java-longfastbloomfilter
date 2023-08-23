@@ -5,7 +5,6 @@ import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfigurationLo
 import io.github.vvcogo.longfastbloomfilter.framework.InvalidConfigurationException;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 import io.github.vvcogo.longfastbloomfilter.framework.extensions.BloomFilterExtension;
-import io.github.vvcogo.longfastbloomfilter.framework.extensions.ExtensionProperties;
 import io.github.vvcogo.longfastbloomfilter.framework.extensions.JavaExtensionLoader;
 import io.github.vvcogo.longfastbloomfilter.framework.factory.BloomFilterCreator;
 import org.slf4j.Logger;
@@ -68,6 +67,7 @@ public final class TestApplication {
         long elapsed = System.currentTimeMillis() - start;
         PATTERNLESS_LOGGER.info("");
         ROOT_LOGGER.info(String.format("Finished inserting %s elements in %s ms%n", callInsert.size(), elapsed));
+        throughput(elapsed, callInsert.size());
     }
 
     private static void executeQueries(ExecutorService exec, BloomFilter<String> bf, List<String> listQuery) throws InterruptedException {
@@ -87,6 +87,7 @@ public final class TestApplication {
         PATTERNLESS_LOGGER.info("");
         ROOT_LOGGER.info(String.format("Finished querying %s elements in %s ms", callQuery.size(), elapsed));
         ROOT_LOGGER.info(String.format("%s/%s were false.", failCount.get(), callQuery.size()));
+        throughput(elapsed, callQuery.size());
     }
 
     private static void checkFalsePositives(BloomFilter<String> bf, Set<String> setInsert, List<String> listQuery) {
@@ -166,5 +167,10 @@ public final class TestApplication {
                 extension.onInit();
             }
         }
+    }
+
+    private static void throughput(long elapsed, int numElems) {
+        double th = (double) numElems/elapsed;
+        ROOT_LOGGER.info(String.format("Inserts throughput: %.2f e/ms.\n", th));
     }
 }
