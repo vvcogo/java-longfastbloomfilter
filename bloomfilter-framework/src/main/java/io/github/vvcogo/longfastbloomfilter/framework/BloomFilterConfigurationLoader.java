@@ -2,7 +2,8 @@ package io.github.vvcogo.longfastbloomfilter.framework;
 
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFunction;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
-import io.github.vvcogo.longfastbloomfilter.framework.serialization.JavaObjectSerializer;
+import io.github.vvcogo.longfastbloomfilter.framework.serialization.JavaSerializableSerializer;
+import io.github.vvcogo.longfastbloomfilter.framework.serialization.ObjectSerializer;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.SerializerFactory;
 
@@ -69,7 +70,7 @@ public class BloomFilterConfigurationLoader<T> {
     }
 
     private void checkSerializer(Properties properties) {
-        String serializerClass = properties.getProperty("serializer", JavaObjectSerializer.class.toString());
+        String serializerClass = properties.getProperty("serializer", ObjectSerializer.class.toString());
         try {
             this.serializer = SerializerFactory.createSerializer(serializerClass);
         } catch (NoSuchMethodException | ClassNotFoundException | InvocationTargetException | InstantiationException |

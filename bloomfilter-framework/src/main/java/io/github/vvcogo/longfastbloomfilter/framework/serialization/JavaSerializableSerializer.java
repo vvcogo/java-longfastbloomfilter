@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-public class JavaObjectSerializer implements Serializer<Serializable> {
+public class JavaSerializableSerializer implements Serializer<Serializable> {
 
     @Override
     public byte[] serialize(Serializable element) {

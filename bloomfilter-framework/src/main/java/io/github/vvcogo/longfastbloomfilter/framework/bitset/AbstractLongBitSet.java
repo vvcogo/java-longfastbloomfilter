@@ -1,5 +1,7 @@
 package io.github.vvcogo.longfastbloomfilter.framework.bitset;
 
+import java.util.Objects;
+
 public abstract class AbstractLongBitSet implements BitSet {
 
     private static final long SINGLE_ARRAY_MAX_BIT_SIZE = Integer.MAX_VALUE * 64L;
@@ -71,4 +73,42 @@ public abstract class AbstractLongBitSet implements BitSet {
     protected abstract boolean get(int arrayIndex, int elementIndex, long bitIndex);
 
     protected abstract void initializeBitArray(int numberOfArrays, int lastArraySize);
+
+    @Override
+    public final boolean equals(Object obj) {
+        if (obj == this)
+            return true;
+        if (obj instanceof AbstractLongBitSet other) {
+            boolean equalAttributes = this.size == other.size &&
+                                        this.numbOfArrays == other.numbOfArrays &&
+                                        this.lastArraySize == other.lastArraySize &&
+                                        this.empty == other.empty;
+            if (equalAttributes) {
+                for (long i = 0; i < getSize(); i++) {
+                    if (get(i) != other.get(i))
+                        return false;
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hash(this.size, this.numbOfArrays, this.lastArraySize, this.empty);
+    }
+
+    @Override
+    public final String toString() {
+        StringBuilder sb = new StringBuilder("[");
+        for (long i = 0; i < getSize(); i++) {
+            if (get(i)) {
+                sb.append('1');
+            } else {
+                sb.append('0');
+            }
+        }
+        return sb.append("]").toString();
+    }
 }

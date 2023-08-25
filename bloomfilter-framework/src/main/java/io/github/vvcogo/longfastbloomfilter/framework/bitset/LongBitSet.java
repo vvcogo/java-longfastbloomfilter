@@ -1,5 +1,7 @@
 package io.github.vvcogo.longfastbloomfilter.framework.bitset;
 
+import java.util.Arrays;
+
 public class LongBitSet extends AbstractLongBitSet {
 
     private long[][] bits;
@@ -34,9 +36,7 @@ public class LongBitSet extends AbstractLongBitSet {
     public LongBitSet copy() {
         LongBitSet copy = new LongBitSet(getSize());
         for (int i = 0; i < this.bits.length; i++) {
-            for (int j = 0; j < this.bits[i].length; j++) {
-                copy.bits[i][j] = this.bits[i][j];
-            }
+            copy.bits[i] = Arrays.copyOf(this.bits[i], this.bits[i].length);
         }
         copy.setEmpty(isEmpty());
         return copy;

@@ -21,9 +21,8 @@ public final class CryptoHash {
             }
             return hashes;
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Invalid hashing algorithm!", e);
         }
-        return null;
     }
 
     private static long bytesToLong(byte[] bytes) {
