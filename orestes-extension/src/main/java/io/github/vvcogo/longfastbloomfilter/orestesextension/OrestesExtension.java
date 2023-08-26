@@ -1,9 +1,9 @@
 package io.github.vvcogo.longfastbloomfilter.orestesextension;
 
-import io.github.vvcogo.longfastbloomfilter.framework.extensions.BloomFilterExtension;
+import io.github.vvcogo.longfastbloomfilter.framework.extensions.JavaBloomFilterExtension;
 import io.github.vvcogo.longfastbloomfilter.framework.factory.BloomFilterFactoryManager;
 
-public class OrestesExtension implements BloomFilterExtension {
+public class OrestesExtension extends JavaBloomFilterExtension {
 
     @Override
     public void onInit() {

@@ -5,6 +5,7 @@ import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterC
 import io.github.vvcogo.longfastbloomfilter.framework.sus.InvalidConfigurationException;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 import io.github.vvcogo.longfastbloomfilter.framework.extensions.BloomFilterExtension;
+import io.github.vvcogo.longfastbloomfilter.framework.extensions.ExtensionLoadException;
 import io.github.vvcogo.longfastbloomfilter.framework.extensions.JavaExtensionLoader;
 import io.github.vvcogo.longfastbloomfilter.framework.factory.BloomFilterCreator;
 import org.slf4j.Logger;
@@ -163,14 +164,21 @@ public final class TestApplication {
         for (File file : files) {
             if (file.getName().endsWith(".jar")) {
                 ROOT_LOGGER.info("LOADING: " + file.getName());
-                BloomFilterExtension extension = loader.loadExtension(file);
-                extension.onInit();
+                try {
+                    BloomFilterExtension extension = loader.loadExtension(file);
+                    String name = extension.getProperties().getName();
+                    String version = extension.getProperties().getVersion();
+                    ROOT_LOGGER.info("\t> Extension loaded: " + name + " v" + version);
+                    extension.onInit();
+                } catch (ExtensionLoadException e) {
+                    ROOT_LOGGER.error("Extension failed to load: " + e.getMessage());
+                }
             }
         }
     }
 
     private static void throughput(long elapsed, int numElems) {
         double th = (double) numElems/elapsed;
-        ROOT_LOGGER.info(String.format("Inserts throughput: %.2f e/ms.\n", th));
+        ROOT_LOGGER.info(String.format("Inserts throughput: %.2f e/ms.%n", th));
     }
 }

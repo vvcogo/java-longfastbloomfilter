@@ -9,7 +9,7 @@ public abstract class AbstractLongBitSet implements BitSet {
     private final long size;
     private final int numbOfArrays;
     private final int lastArraySize;
-    private boolean empty = false;
+    private boolean empty = true;
 
     protected AbstractLongBitSet(long size) {
         this.size = size;
@@ -39,6 +39,7 @@ public abstract class AbstractLongBitSet implements BitSet {
     @Override
     public void clear() {
         initializeBitArray(this.numbOfArrays, this.lastArraySize);
+        this.empty = true;
     }
 
     @Override
@@ -65,7 +66,7 @@ public abstract class AbstractLongBitSet implements BitSet {
     }
 
     private long getBitIndex(long index) {
-        return index % SINGLE_ARRAY_MAX_BIT_SIZE;
+        return index % 64L;
     }
 
     protected abstract void set(int arrayIndex, int elementIndex, long bitIndex);
