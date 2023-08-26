@@ -14,7 +14,7 @@ public class JavaSerializableSerializer implements Serializer<Serializable> {
             oos.writeObject(element);
             return baos.toByteArray();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new IllegalArgumentException("The specified object is not instanceof Serializable", e);
         }
     }
 }

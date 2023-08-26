@@ -74,13 +74,7 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getName())
-                .append("\nConfiguration:\n")
-                .append(this.configuration.toString())
-                .append("\nBitSet:\b")
-                .append(this.bitSet.toString());
-        return sb.toString();
+        return String.format("%s\nConfiguration:\n%s\nBitSet:\n%s", getClass().getName(), this.configuration, this.bitSet);
     }
 
     private long[] getHashes(byte[] bytes) {

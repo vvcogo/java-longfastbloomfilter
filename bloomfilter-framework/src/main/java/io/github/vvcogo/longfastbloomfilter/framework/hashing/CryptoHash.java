@@ -21,7 +21,7 @@ public final class CryptoHash {
             }
             return hashes;
         } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Invalid hashing algorithm!", e);
+            throw new IllegalArgumentException("The specified algorithm is not valid!", e);
         }
     }
 
