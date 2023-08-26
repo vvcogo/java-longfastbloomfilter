@@ -4,4 +4,6 @@ public interface BloomFilterExtension {
 
     void onInit();
 
+    ExtensionProperties getProperties();
+
 }
