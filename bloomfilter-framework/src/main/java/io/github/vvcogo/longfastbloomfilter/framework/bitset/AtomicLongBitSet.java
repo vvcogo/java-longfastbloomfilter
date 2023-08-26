@@ -27,7 +27,7 @@ public class AtomicLongBitSet extends AbstractLongBitSet {
     public AtomicLongBitSet copy() {
         AtomicLongBitSet copy = new AtomicLongBitSet(getSize());
         for (int i = 0; i < this.bits.length; i++) {
-            for (int j = 0; j < this.bits[j].length(); j++) {
+            for (int j = 0; j < this.bits[i].length(); j++) {
                 copy.bits[i].set(j, this.bits[i].get(j));
             }
         }
