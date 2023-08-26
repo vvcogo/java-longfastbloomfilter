@@ -1,4 +1,4 @@
-package io.github.vvcogo.longfastbloomfilter.framework;
+package io.github.vvcogo.longfastbloomfilter.framework.sus;
 
 
 public final class BloomFilterCalculations {
@@ -24,5 +24,10 @@ public final class BloomFilterCalculations {
     // n = -(m * ln(2)^2 / ln(p))
     public static long calculateMaxNumberOfElements(long bitSetSize, double falsePositiveProbability) {
         return (long) (-bitSetSize * LN_2_SQUARED / Math.log(falsePositiveProbability));
+    }
+
+    // p = e ^ ((-ln(2)^2 * m)/n)
+    public static double calculateFalsePositiveProbability(long bitSetSize, long expectedNumberOfElements) {
+        return Math.pow(Math.E, (-Math.pow(LN_2,2) * bitSetSize) / expectedNumberOfElements);
     }
 }

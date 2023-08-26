@@ -1,8 +1,8 @@
 package io.github.vvcogo;
 
-import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfiguration;
-import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfigurationLoader;
-import io.github.vvcogo.longfastbloomfilter.framework.InvalidConfigurationException;
+import io.github.vvcogo.longfastbloomfilter.framework.sus.BloomFilterConfiguration;
+import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfigurationLoader;
+import io.github.vvcogo.longfastbloomfilter.framework.sus.InvalidConfigurationException;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 import io.github.vvcogo.longfastbloomfilter.framework.extensions.BloomFilterExtension;
 import io.github.vvcogo.longfastbloomfilter.framework.extensions.JavaExtensionLoader;

@@ -1,11 +1,13 @@
-package io.github.vvcogo.longfastbloomfilter.framework;
+package io.github.vvcogo.longfastbloomfilter.framework.configuration;
 
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFunction;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
-import io.github.vvcogo.longfastbloomfilter.framework.serialization.JavaSerializableSerializer;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.ObjectSerializer;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.SerializerFactory;
+import io.github.vvcogo.longfastbloomfilter.framework.sus.BloomFilterCalculations;
+import io.github.vvcogo.longfastbloomfilter.framework.sus.BloomFilterConfiguration;
+import io.github.vvcogo.longfastbloomfilter.framework.sus.InvalidConfigurationException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
@@ -41,14 +43,6 @@ public class BloomFilterConfigurationLoader<T> {
                 this.numberOfHashFunctions, this.falsePositiveProbability, this.hashingAlgorithm, this.bloomFilterType, this.serializer);
     }
 
-    private void checkRequiredProperties(Properties properties) {
-        if (!properties.containsKey("bloomfilter-type")) {
-            throw new InvalidConfigurationException("Type of bloomfilter is not specified!");
-        }
-        if (!properties.containsKey("false-positive-probability")) {
-            throw new InvalidConfigurationException("False positive probability is not specified!");
-        }
-    }
 
     private void checkOptionalProperties(Properties properties) {
         int numberOfOptionalProps = 0;

@@ -1,4 +1,4 @@
-package io.github.vvcogo.longfastbloomfilter.framework;
+package io.github.vvcogo.longfastbloomfilter.framework.sus;
 
 public class InvalidConfigurationException extends RuntimeException {
 

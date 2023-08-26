@@ -1,7 +1,7 @@
 package io.github.vvcogo.longfastbloomfilter.guavaextension;
 
 import com.google.common.hash.Funnel;
-import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterConfiguration;
+import io.github.vvcogo.longfastbloomfilter.framework.sus.BloomFilterConfiguration;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 
 public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {

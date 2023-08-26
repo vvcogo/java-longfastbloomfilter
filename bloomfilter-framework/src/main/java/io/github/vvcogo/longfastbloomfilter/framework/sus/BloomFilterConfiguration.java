@@ -1,4 +1,4 @@
-package io.github.vvcogo.longfastbloomfilter.framework;
+package io.github.vvcogo.longfastbloomfilter.framework.sus;
 
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
