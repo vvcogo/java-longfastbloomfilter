@@ -3,7 +3,7 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 *.log
-extensions/
+./extensions/
 
 ### IntelliJ IDEA ###
 .idea/
