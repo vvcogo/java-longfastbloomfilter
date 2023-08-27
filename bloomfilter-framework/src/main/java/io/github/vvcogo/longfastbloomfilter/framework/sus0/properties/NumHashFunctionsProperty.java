@@ -1,7 +1,7 @@
-package io.github.vvcogo.longfastbloomfilter.framework.configuration.properties;
+package io.github.vvcogo.longfastbloomfilter.framework.sus0.properties;
 
-import io.github.vvcogo.longfastbloomfilter.framework.sus.BloomFilterCalculations;
-import io.github.vvcogo.longfastbloomfilter.framework.sus.InvalidConfigurationException;
+import io.github.vvcogo.longfastbloomfilter.framework.sus2.BloomFilterCalculations;
+import io.github.vvcogo.longfastbloomfilter.framework.sus2.InvalidConfigurationException;
 
 import java.util.Properties;
 

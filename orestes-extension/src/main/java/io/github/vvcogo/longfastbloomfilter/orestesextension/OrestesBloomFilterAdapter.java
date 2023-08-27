@@ -1,7 +1,7 @@
 package io.github.vvcogo.longfastbloomfilter.orestesextension;
 
 
-import io.github.vvcogo.longfastbloomfilter.framework.sus.BloomFilterConfiguration;
+import io.github.vvcogo.longfastbloomfilter.framework.sus2.BloomFilterConfiguration;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 import orestes.bloomfilter.FilterBuilder;
 

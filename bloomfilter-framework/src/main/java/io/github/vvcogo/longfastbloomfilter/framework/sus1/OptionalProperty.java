@@ -1,11 +1,13 @@
-package io.github.vvcogo.longfastbloomfilter.framework.sus;
+package io.github.vvcogo.longfastbloomfilter.framework.sus1;
+
+import io.github.vvcogo.longfastbloomfilter.framework.sus2.properties.PropertyParams;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-public class OptionalProperty extends PropertyElement{
+public class OptionalProperty extends PropertyElement {
 
     private PropertyParams paramProp;
     private static final List<String> LIST_OPTIONALS = new ArrayList<>(Arrays.asList("expected-elements", "bitset-size","false-positive-probability", "hash-function"));

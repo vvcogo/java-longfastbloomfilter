@@ -1,13 +1,13 @@
-package io.github.vvcogo.longfastbloomfilter.framework.configuration;
+package io.github.vvcogo.longfastbloomfilter.framework.sus0;
 
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFunction;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.ObjectSerializer;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.SerializerFactory;
-import io.github.vvcogo.longfastbloomfilter.framework.sus.BloomFilterCalculations;
-import io.github.vvcogo.longfastbloomfilter.framework.sus.BloomFilterConfiguration;
-import io.github.vvcogo.longfastbloomfilter.framework.sus.InvalidConfigurationException;
+import io.github.vvcogo.longfastbloomfilter.framework.sus2.BloomFilterCalculations;
+import io.github.vvcogo.longfastbloomfilter.framework.sus2.BloomFilterConfiguration;
+import io.github.vvcogo.longfastbloomfilter.framework.sus2.InvalidConfigurationException;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;

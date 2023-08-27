@@ -1,4 +1,6 @@
-package io.github.vvcogo.longfastbloomfilter.framework.sus;
+package io.github.vvcogo.longfastbloomfilter.framework.sus1;
+
+import io.github.vvcogo.longfastbloomfilter.framework.sus2.InvalidConfigurationException;
 
 import java.util.Properties;
 
