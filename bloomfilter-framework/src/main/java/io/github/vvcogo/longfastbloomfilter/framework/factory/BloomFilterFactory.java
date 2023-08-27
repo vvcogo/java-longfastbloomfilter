@@ -1,6 +1,6 @@
 package io.github.vvcogo.longfastbloomfilter.framework.factory;
 
-import io.github.vvcogo.longfastbloomfilter.framework.sus2.BloomFilterConfiguration;
+import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfiguration;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 
 public interface BloomFilterFactory {

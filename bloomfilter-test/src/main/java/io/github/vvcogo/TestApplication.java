@@ -1,8 +1,8 @@
 package io.github.vvcogo;
 
-import io.github.vvcogo.longfastbloomfilter.framework.sus2.BloomFilterConfiguration;
-import io.github.vvcogo.longfastbloomfilter.framework.sus0.BloomFilterConfigurationLoader;
-import io.github.vvcogo.longfastbloomfilter.framework.sus2.InvalidConfigurationException;
+import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfiguration;
+import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfigurationLoader;
+import io.github.vvcogo.longfastbloomfilter.framework.configuration.InvalidConfigurationException;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 import io.github.vvcogo.longfastbloomfilter.framework.extensions.BloomFilterExtension;
 import io.github.vvcogo.longfastbloomfilter.framework.extensions.ExtensionLoadException;
@@ -109,7 +109,8 @@ public final class TestApplication {
         try (FileInputStream inputStream = new FileInputStream(configFilePath)) {
             Properties props = new Properties();
             props.load(inputStream);
-            return new BloomFilterConfigurationLoader<String>(props).getConfiguration();
+            BloomFilterConfigurationLoader<String> loader = BloomFilterConfigurationLoader.defaultLoader();
+            return loader.loadConfig(props);
         } catch (FileNotFoundException e) {
             ROOT_LOGGER.error("Config file not found!");
             System.exit(1);

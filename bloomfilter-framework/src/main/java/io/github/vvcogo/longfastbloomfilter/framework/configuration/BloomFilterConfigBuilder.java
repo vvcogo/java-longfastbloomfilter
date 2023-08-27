@@ -1,20 +1,20 @@
-package io.github.vvcogo.longfastbloomfilter.framework.sus2;
+package io.github.vvcogo.longfastbloomfilter.framework.configuration;
 
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
+import io.github.vvcogo.longfastbloomfilter.framework.serialization.SerializerFactory;
+
+import java.lang.reflect.InvocationTargetException;
 
 public class BloomFilterConfigBuilder<T> {
 
     private HashingAlgorithm hashingAlgorithm;
-    private Serializer<? super T> serializer;
+    private String serializerClass;
     private String bloomFilterType;
     private double falsePositiveProbability;
     private long expectedNumberOfElements;
     private long bitSetSize;
     private int numberOfHashFunctions;
-
-    public BloomFilterConfigBuilder(){
-    }
 
     public BloomFilterConfigBuilder<T> setBitSetSize(long bitSetSize){
         this.bitSetSize = bitSetSize;
@@ -46,13 +46,19 @@ public class BloomFilterConfigBuilder<T> {
         return this;
     }
 
-    public BloomFilterConfigBuilder<T> setSerializer(Serializer<? super T> serializer){
-        this.serializer = serializer;
+    public BloomFilterConfigBuilder<T> setSerializer(String serializerClass){
+        this.serializerClass = serializerClass;
         return this;
     }
 
-    public BloomFilterConfiguration<T> build() {
-        return new BloomFilterConfiguration<>(this.bitSetSize, this.expectedNumberOfElements,
-                this.numberOfHashFunctions, this.falsePositiveProbability, this.hashingAlgorithm, this.bloomFilterType, this.serializer);
+    public BloomFilterConfiguration<T> build() throws InvalidConfigurationException {
+        try {
+            Serializer<? super T> serializer = SerializerFactory.createSerializer(this.serializerClass);
+            return new BloomFilterConfiguration<>(this.bitSetSize, this.expectedNumberOfElements,
+                    this.numberOfHashFunctions, this.falsePositiveProbability, this.hashingAlgorithm, this.bloomFilterType, serializer);
+        } catch (NoSuchMethodException | ClassNotFoundException | InvocationTargetException | InstantiationException |
+                 IllegalAccessException e) {
+            throw new InvalidConfigurationException("Invalid serializer class", e);
+        }
     }
 }

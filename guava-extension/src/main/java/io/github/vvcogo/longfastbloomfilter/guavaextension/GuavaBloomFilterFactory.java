@@ -1,6 +1,6 @@
 package io.github.vvcogo.longfastbloomfilter.guavaextension;
 
-import io.github.vvcogo.longfastbloomfilter.framework.sus2.BloomFilterConfiguration;
+import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfiguration;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 import io.github.vvcogo.longfastbloomfilter.framework.factory.BloomFilterFactory;
 

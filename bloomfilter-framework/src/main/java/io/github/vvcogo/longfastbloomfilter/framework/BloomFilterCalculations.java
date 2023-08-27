@@ -1,4 +1,4 @@
-package io.github.vvcogo.longfastbloomfilter.framework.sus2;
+package io.github.vvcogo.longfastbloomfilter.framework;
 
 
 public final class BloomFilterCalculations {
