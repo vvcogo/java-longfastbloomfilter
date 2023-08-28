@@ -62,7 +62,7 @@ public final class TestApplication {
         for(String elem : listInsert){
             callInsert.add(Executors.callable(() -> {
                 bf.add(elem);
-                ROOT_LOGGER.info("INSERTED: " + elem);
+                ROOT_LOGGER.debug("INSERTED: " + elem);
             } ));
         }
         long start = System.currentTimeMillis();
@@ -81,7 +81,7 @@ public final class TestApplication {
         for (String elem : listQuery){
             callQuery.add(Executors.callable(() -> {
                 boolean result = bf.mightContains(elem);
-                ROOT_LOGGER.info(String.format("QUERY (%s): %s", elem, result));
+                ROOT_LOGGER.debug(String.format("QUERY (%s): %s", elem, result));
                 if (!result)
                     failCount.getAndIncrement();
             }));
@@ -106,7 +106,8 @@ public final class TestApplication {
         if (falsePositives.isEmpty()) {
             ROOT_LOGGER.info("No false positives were found!");
         } else {
-            ROOT_LOGGER.info(String.format("False positives (%s): %s%n", falsePositives.size(), falsePositives));
+            ROOT_LOGGER.info(String.format("False positives (%s)", falsePositives.size()));
+            ROOT_LOGGER.debug(falsePositives.toString());
         }
     }
 
