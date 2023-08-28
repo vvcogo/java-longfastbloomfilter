@@ -7,9 +7,11 @@ import java.util.Properties;
 public abstract class AbstractDefaultConfigProperty implements ConfigProperty {
 
     private final String propertyName;
+    private final String defaultValue;
 
-    protected AbstractDefaultConfigProperty(String propertyName) {
+    protected AbstractDefaultConfigProperty(String propertyName, String defaultValue) {
         this.propertyName = propertyName;
+        this.defaultValue = defaultValue;
     }
 
     @Override
@@ -20,5 +22,11 @@ public abstract class AbstractDefaultConfigProperty implements ConfigProperty {
     @Override
     public final boolean isSatisfied(Properties properties) {
         return true;
+    }
+
+    @Override
+    public void calculateValue(Properties properties) {
+        String value = properties.getProperty(getPropertyName(), this.defaultValue);
+        properties.setProperty(getPropertyName(), value);
     }
 }

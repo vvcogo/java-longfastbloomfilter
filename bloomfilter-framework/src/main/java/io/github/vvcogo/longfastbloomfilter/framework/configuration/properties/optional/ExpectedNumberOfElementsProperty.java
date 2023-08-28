@@ -1,11 +1,7 @@
 package io.github.vvcogo.longfastbloomfilter.framework.configuration.properties.optional;
 
 import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterCalculations;
-import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfigBuilder;
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.properties.PropertyParams;
-
-import java.util.Optional;
-import java.util.Properties;
 
 public class ExpectedNumberOfElementsProperty extends AbstractOptionalConfigProperty<Long> {
 
@@ -22,12 +18,5 @@ public class ExpectedNumberOfElementsProperty extends AbstractOptionalConfigProp
             int k = Integer.parseInt(props.getProperty("number-hash-functions"));
             return BloomFilterCalculations.calculateMaxNumberOfElements(m,k);
         }));
-    }
-
-    @Override
-    public void calculateValue(BloomFilterConfigBuilder builder, Properties properties) {
-        Optional<PropertyParams<Long>> optionalParam = getFirstSatisfiedProperty(properties);
-        Long value = optionalParam.get().getCalculateFunc().apply(properties);
-        builder.setExpectedNumberOfElements(value);
     }
 }

@@ -25,12 +25,14 @@ public final class TestApplication {
         checkArguments(args);
 
         // for use with jConsole
-        Thread.sleep(3000);
+//        Thread.sleep(3000);
 
         JavaExtensionLoader extensionLoader = new JavaExtensionLoader();
         loadExtensions(extensionLoader);
 
+        ROOT_LOGGER.info("Loading config from file: " + args[2]);
         BloomFilterConfiguration<String> bc = loadConfiguration(args[2]);
+        ROOT_LOGGER.info(String.format("Config has been loaded: %n%s", bc.toString()));
         BloomFilter<String> bf = BloomFilterCreator.createBloomFilter(bc);
 
         ExecutorService exec = createThreadPool(args.length == 4 ? args[3] : null);
@@ -67,8 +69,10 @@ public final class TestApplication {
         exec.invokeAll(callInsert);
         long elapsed = System.currentTimeMillis() - start;
         PATTERNLESS_LOGGER.info("");
-        ROOT_LOGGER.info(String.format("Finished inserting %s elements in %s ms%n", callInsert.size(), elapsed));
+        ROOT_LOGGER.info(String.format("Finished inserting %s elements in %s ms", callInsert.size(), elapsed));
         throughput(elapsed, callInsert.size());
+        latency(elapsed, callInsert.size());
+        PATTERNLESS_LOGGER.info("");
     }
 
     private static void executeQueries(ExecutorService exec, BloomFilter<String> bf, List<String> listQuery) throws InterruptedException {
@@ -89,6 +93,7 @@ public final class TestApplication {
         ROOT_LOGGER.info(String.format("Finished querying %s elements in %s ms", callQuery.size(), elapsed));
         ROOT_LOGGER.info(String.format("%s/%s were false.", failCount.get(), callQuery.size()));
         throughput(elapsed, callQuery.size());
+        latency(elapsed, callQuery.size());
     }
 
     private static void checkFalsePositives(BloomFilter<String> bf, Set<String> setInsert, List<String> listQuery) {
@@ -178,8 +183,13 @@ public final class TestApplication {
         }
     }
 
-    private static void throughput(long elapsed, int numElems) {
-        double th = (double) numElems/elapsed;
-        ROOT_LOGGER.info(String.format("Inserts throughput: %.2f e/ms.%n", th));
+    private static void throughput(long elapsed, long numElems) {
+        double th = numElems/(elapsed / 1000.0);
+        ROOT_LOGGER.info(String.format(" > Throughput: %.2f e/s.", th));
+    }
+
+    private static void latency(long elapsed, long numElems) {
+        double latency = (double) elapsed/numElems;
+        ROOT_LOGGER.info(String.format(" > Latency: %.2f ms.", latency));
     }
 }

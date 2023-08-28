@@ -21,14 +21,26 @@ public class BloomFilterConfigurationLoader<T> {
     }
 
     public BloomFilterConfiguration<T> loadConfig(Properties properties) throws InvalidConfigurationException {
-        BloomFilterConfigBuilder<T> builder = new BloomFilterConfigBuilder<>();
-        for (ConfigProperty configPropertyElem : propList) {
-            if (!configPropertyElem.isSatisfied(properties)) {
-                throw new InvalidConfigurationException("Missing parameters");
+        Properties copy = (Properties) properties.clone();
+        List<ConfigProperty> unsatisfiedProperties = new ArrayList<>(propList);
+        boolean changed;
+        do {
+            changed = false;
+            List<ConfigProperty> newUnsatisfied = new ArrayList<>();
+            for (ConfigProperty property : unsatisfiedProperties) {
+                if (property.isSatisfied(copy)) {
+                    changed = true;
+                    property.calculateValue(copy);
+                } else {
+                    newUnsatisfied.add(property);
+                }
             }
-            configPropertyElem.calculateValue(builder, properties);
+            unsatisfiedProperties = newUnsatisfied;
+        } while (changed && !unsatisfiedProperties.isEmpty());
+        if (!unsatisfiedProperties.isEmpty()) {
+            throw new InvalidConfigurationException("Unsatisfied properties: " + unsatisfiedProperties);
         }
-        return builder.build();
+        return BloomFilterConfiguration.fromProperties(copy);
     }
 
     public static <E> BloomFilterConfigurationLoader<E> emptyLoader() {

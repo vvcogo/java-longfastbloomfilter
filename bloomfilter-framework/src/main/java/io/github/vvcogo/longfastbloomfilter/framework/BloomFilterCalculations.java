@@ -18,7 +18,8 @@ public final class BloomFilterCalculations {
 
     // k = ln(2) * m/n
     public static int calculateOptimalNumberOfHashFunctions(long bitSetSize, long expectedNumberOfElements) {
-        return (int) (LN_2 * bitSetSize / expectedNumberOfElements);
+        double frac = (double) bitSetSize / expectedNumberOfElements;
+        return (int) (LN_2 * frac);
     }
 
     // n = -(m * ln(2)^2 / ln(p))

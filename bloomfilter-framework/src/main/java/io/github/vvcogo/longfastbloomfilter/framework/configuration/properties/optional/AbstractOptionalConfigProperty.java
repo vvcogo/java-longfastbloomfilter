@@ -39,6 +39,15 @@ public abstract class AbstractOptionalConfigProperty<T> implements ConfigPropert
         return Optional.empty();
     }
 
+    @Override
+    public final void calculateValue(Properties properties) {
+        if (!properties.containsKey(getPropertyName())) {
+            Optional<PropertyParams<T>> param = getFirstSatisfiedProperty(properties);
+            T value = param.get().getCalculateFunc().apply(properties);
+            properties.setProperty(getPropertyName(), value.toString());
+        }
+    }
+
     protected final void addPropertyParameter(PropertyParams<T> param) {
         this.pairListParams.add(param);
     }

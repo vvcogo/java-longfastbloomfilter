@@ -1,11 +1,7 @@
 package io.github.vvcogo.longfastbloomfilter.framework.configuration.properties.optional;
 
 import io.github.vvcogo.longfastbloomfilter.framework.BloomFilterCalculations;
-import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfigBuilder;
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.properties.PropertyParams;
-
-import java.util.Optional;
-import java.util.Properties;
 
 public class FalsePositiveProbProperty extends AbstractOptionalConfigProperty<Double> {
 
@@ -16,12 +12,5 @@ public class FalsePositiveProbProperty extends AbstractOptionalConfigProperty<Do
             long n = Long.parseLong(props.getProperty("expected-elements"));
             return BloomFilterCalculations.calculateFalsePositiveProbability(m,n);
         }));
-    }
-
-    @Override
-    public void calculateValue(BloomFilterConfigBuilder<?> builder, Properties properties) {
-        Optional<PropertyParams<Double>> optionalParam = getFirstSatisfiedProperty(properties);
-        Double value = optionalParam.get().getCalculateFunc().apply(properties);
-        builder.setFalsePositiveProbability(value);
     }
 }

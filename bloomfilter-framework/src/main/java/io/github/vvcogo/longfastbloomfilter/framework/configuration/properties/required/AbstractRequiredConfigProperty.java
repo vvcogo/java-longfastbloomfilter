@@ -21,4 +21,9 @@ public abstract class AbstractRequiredConfigProperty implements ConfigProperty {
     public final boolean isSatisfied(Properties properties) {
         return properties.containsKey(this.propertyName);
     }
+
+    @Override
+    public void calculateValue(Properties properties) {
+
+    }
 }
