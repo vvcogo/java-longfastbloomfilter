@@ -17,22 +17,25 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public final class TestApplication {
+
     private static final Logger ROOT_LOGGER = LoggerFactory.getLogger("");
     private static final Logger PATTERNLESS_LOGGER = LoggerFactory.getLogger("patternless");
     private static final File EXTENSIONS_DIRECTORY = new File("extensions/");
+    private static final int NUMBER_OF_DECIMAL_PLACES = 2;
+    private static final double DECIMAL_ROUNDER_MULTIPLIER = Math.pow(10, NUMBER_OF_DECIMAL_PLACES);
 
     public static void main(String[] args) throws InterruptedException {
         checkArguments(args);
 
         // for use with jConsole
-//        Thread.sleep(3000);
+        Thread.sleep(3000);
 
         JavaExtensionLoader extensionLoader = new JavaExtensionLoader();
         loadExtensions(extensionLoader);
 
-        ROOT_LOGGER.info("Loading config from file: " + args[2]);
+        ROOT_LOGGER.info("Loading config from file: {}", args[2]);
         BloomFilterConfiguration<String> bc = loadConfiguration(args[2]);
-        ROOT_LOGGER.info(String.format("Config has been loaded: %n%s", bc.toString()));
+        ROOT_LOGGER.info("{}", bc);
         BloomFilter<String> bf = BloomFilterCreator.createBloomFilter(bc);
 
         ExecutorService exec = createThreadPool(args.length == 4 ? args[3] : null);
@@ -52,7 +55,7 @@ public final class TestApplication {
         if(args.length < 3 || args.length > 4) {
             String filePath = TestApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath();
             String jarFileName = filePath.substring(filePath.lastIndexOf("/"));
-            ROOT_LOGGER.error(String.format("Usage: .%s <insert file> <query file> <config file> [number of threads]", jarFileName));
+            ROOT_LOGGER.error("Usage: .{} <insert file> <query file> <config file> [number of threads]", jarFileName);
             System.exit(1);
         }
     }
@@ -62,14 +65,14 @@ public final class TestApplication {
         for(String elem : listInsert){
             callInsert.add(Executors.callable(() -> {
                 bf.add(elem);
-                ROOT_LOGGER.debug("INSERTED: " + elem);
+                ROOT_LOGGER.debug("INSERTED: {}", elem);
             } ));
         }
         long start = System.currentTimeMillis();
         exec.invokeAll(callInsert);
         long elapsed = System.currentTimeMillis() - start;
         PATTERNLESS_LOGGER.info("");
-        ROOT_LOGGER.info(String.format("Finished inserting %s elements in %s ms", callInsert.size(), elapsed));
+        ROOT_LOGGER.info("Finished inserting {} elements in {} ms", callInsert.size(), elapsed);
         throughput(elapsed, callInsert.size());
         latency(elapsed, callInsert.size());
         PATTERNLESS_LOGGER.info("");
@@ -81,7 +84,7 @@ public final class TestApplication {
         for (String elem : listQuery){
             callQuery.add(Executors.callable(() -> {
                 boolean result = bf.mightContains(elem);
-                ROOT_LOGGER.debug(String.format("QUERY (%s): %s", elem, result));
+                ROOT_LOGGER.debug("QUERY ({}): {}", elem, result);
                 if (!result)
                     failCount.getAndIncrement();
             }));
@@ -90,8 +93,8 @@ public final class TestApplication {
         exec.invokeAll(callQuery);
         long elapsed = System.currentTimeMillis() - start;
         PATTERNLESS_LOGGER.info("");
-        ROOT_LOGGER.info(String.format("Finished querying %s elements in %s ms", callQuery.size(), elapsed));
-        ROOT_LOGGER.info(String.format("%s/%s were false.", failCount.get(), callQuery.size()));
+        ROOT_LOGGER.info("Finished querying {} elements in {} ms", callQuery.size(), elapsed);
+        ROOT_LOGGER.info("{}/{} were false.", failCount.get(), callQuery.size());
         throughput(elapsed, callQuery.size());
         latency(elapsed, callQuery.size());
     }
@@ -106,8 +109,8 @@ public final class TestApplication {
         if (falsePositives.isEmpty()) {
             ROOT_LOGGER.info("No false positives were found!");
         } else {
-            ROOT_LOGGER.info(String.format("False positives (%s)", falsePositives.size()));
-            ROOT_LOGGER.debug(falsePositives.toString());
+            ROOT_LOGGER.info("False positives ({})", falsePositives.size());
+            ROOT_LOGGER.debug("{}", falsePositives);
         }
     }
 
@@ -124,7 +127,7 @@ public final class TestApplication {
             ROOT_LOGGER.error("Failed to read config file!");
             System.exit(1);
         } catch (InvalidConfigurationException e) {
-            ROOT_LOGGER.error("Configuration was invalid! " + e.getMessage());
+            ROOT_LOGGER.error("Configuration was invalid! {}", e.getMessage());
             System.exit(1);
         }
         return null;
@@ -145,7 +148,7 @@ public final class TestApplication {
                 ROOT_LOGGER.error("Could not read number of threads!");
             }
         }
-        ROOT_LOGGER.info("Creating Thread Pool with " + numberOfThreads + " threads.\n");
+        ROOT_LOGGER.info("Creating Thread Pool with {} threads.\n", numberOfThreads);
         return Executors.newFixedThreadPool(numberOfThreads);
     }
 
@@ -154,15 +157,15 @@ public final class TestApplication {
         try {
             result = FileReader.readFile(path);
         } catch (FileNotFoundException e) {
-            ROOT_LOGGER.error("Can not read " + type + " file.");
-            e.printStackTrace();
+            ROOT_LOGGER.error("Can not read {} file.", type);
+            ROOT_LOGGER.error("{}", e.getMessage());
             System.exit(1);
         }
         return result;
     }
 
     private static void loadExtensions(JavaExtensionLoader loader) {
-        ROOT_LOGGER.info("Trying to load extensions from " + EXTENSIONS_DIRECTORY.getAbsolutePath());
+        ROOT_LOGGER.info("Trying to load extensions from {}", EXTENSIONS_DIRECTORY.getAbsolutePath());
         if (!EXTENSIONS_DIRECTORY.isDirectory())
             return;
         File[] files = EXTENSIONS_DIRECTORY.listFiles();
@@ -170,15 +173,15 @@ public final class TestApplication {
             return;
         for (File file : files) {
             if (file.getName().endsWith(".jar")) {
-                ROOT_LOGGER.info("LOADING: " + file.getName());
+                ROOT_LOGGER.info("LOADING: {}", file.getName());
                 try {
                     BloomFilterExtension extension = loader.loadExtension(file);
                     String name = extension.getProperties().getName();
                     String version = extension.getProperties().getVersion();
-                    ROOT_LOGGER.info("\t> Extension loaded: " + name + " v" + version);
+                    ROOT_LOGGER.info("\t> Extension loaded: {} v{}", name, version);
                     extension.onInit();
                 } catch (ExtensionLoadException e) {
-                    ROOT_LOGGER.error("Extension failed to load: " + e.getMessage());
+                    ROOT_LOGGER.error("Extension failed to load: {}", e.getMessage());
                 }
             }
         }
@@ -186,11 +189,11 @@ public final class TestApplication {
 
     private static void throughput(long elapsed, long numElems) {
         double th = numElems/(elapsed / 1000.0);
-        ROOT_LOGGER.info(String.format(" > Throughput: %.2f e/s.", th));
+        ROOT_LOGGER.info(" > Throughput: {} e/s.", Math.round(th * Math.pow(10, DECIMAL_ROUNDER_MULTIPLIER))/DECIMAL_ROUNDER_MULTIPLIER);
     }
 
     private static void latency(long elapsed, long numElems) {
         double latency = (double) elapsed/numElems;
-        ROOT_LOGGER.info(String.format(" > Latency: %.2f ms.", latency));
+        ROOT_LOGGER.info(" > Latency: {} ms.", Math.round(latency * DECIMAL_ROUNDER_MULTIPLIER)/DECIMAL_ROUNDER_MULTIPLIER);
     }
 }
