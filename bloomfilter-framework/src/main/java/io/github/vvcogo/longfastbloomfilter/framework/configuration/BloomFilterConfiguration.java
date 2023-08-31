@@ -1,5 +1,6 @@
 package io.github.vvcogo.longfastbloomfilter.framework.configuration;
 
+import io.github.vvcogo.longfastbloomfilter.framework.configuration.properties.ConfigProperties;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFunction;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
@@ -33,13 +34,13 @@ public record BloomFilterConfiguration<T>(long bitSetSize,
 
     public static <E> BloomFilterConfiguration<E> fromProperties(Properties properties) throws InvalidConfigurationException {
         try {
-            long bitSetSize = Long.parseLong(properties.getProperty("bitset-size"));
-            long expectedElems = Long.parseLong(properties.getProperty("expected-elements"));
-            int numbHash = Integer.parseInt(properties.getProperty("number-hash-functions"));
-            double fpp = Double.parseDouble(properties.getProperty("false-positive-probability"));
-            HashingAlgorithm hashingAlgorithm = HashFunction.valueOf(properties.getProperty("hash-function")).getHashingAlgorithm();
-            String type = properties.getProperty("bloomfilter-type");
-            Serializer<? super E> serializer = SerializerFactory.createSerializer(properties.getProperty("serializer"));
+            long bitSetSize = Long.parseLong(properties.getProperty(ConfigProperties.BITSET_SIZE.getName()));
+            long expectedElems = Long.parseLong(properties.getProperty(ConfigProperties.EXPECTED_ELEMS.getName()));
+            int numbHash = Integer.parseInt(properties.getProperty(ConfigProperties.NUMBER_HASH_FUNCTIONS.getName()));
+            double fpp = Double.parseDouble(properties.getProperty(ConfigProperties.FALSE_POSITIVE_PROBABILITY.getName()));
+            HashingAlgorithm hashingAlgorithm = HashFunction.valueOf(properties.getProperty(ConfigProperties.HASH_FUNCTION.getName())).getHashingAlgorithm();
+            String type = properties.getProperty(ConfigProperties.BLOOMFILTER_TYPE.getName());
+            Serializer<? super E> serializer = SerializerFactory.createSerializer(properties.getProperty(ConfigProperties.SERIALIZER.getName()));
             return new BloomFilterConfiguration<>(bitSetSize, expectedElems, numbHash, fpp, hashingAlgorithm, type, serializer);
         } catch (NumberFormatException | NoSuchMethodException | ClassNotFoundException | InvocationTargetException | InstantiationException |
                  IllegalAccessException e) {

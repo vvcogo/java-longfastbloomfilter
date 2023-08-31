@@ -7,7 +7,7 @@ import io.github.vvcogo.longfastbloomfilter.framework.configuration.properties.P
 public class NumberOfHashFuncsProperty extends AbstractOptionalConfigProperty<Integer> {
 
     public NumberOfHashFuncsProperty() {
-        super(ConfigProperties.HASH_FUNCTION.getName());
+        super(ConfigProperties.NUMBER_HASH_FUNCTIONS.getName());
         addPropertyParameter(new PropertyParams<>(new String[]{ConfigProperties.BITSET_SIZE.getName(),ConfigProperties.EXPECTED_ELEMS.getName()}, props -> {
             long m = Long.parseLong(props.getProperty(ConfigProperties.BITSET_SIZE.getName()));
             long n = Long.parseLong(props.getProperty(ConfigProperties.EXPECTED_ELEMS.getName()));
