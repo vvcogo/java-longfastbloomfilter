@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public final class TestApplication {
 
@@ -79,14 +78,11 @@ public final class TestApplication {
     }
 
     private static void executeQueries(ExecutorService exec, BloomFilter<String> bf, List<String> listQuery) throws InterruptedException {
-        AtomicInteger failCount = new AtomicInteger();
         List<Callable<Object>> callQuery = new ArrayList<>();
-        for (String elem : listQuery){
+        for (String elem : listQuery) {
             callQuery.add(Executors.callable(() -> {
                 boolean result = bf.mightContains(elem);
                 ROOT_LOGGER.debug("QUERY ({}): {}", elem, result);
-                if (!result)
-                    failCount.getAndIncrement();
             }));
         }
         long start = System.currentTimeMillis();
@@ -94,7 +90,7 @@ public final class TestApplication {
         long elapsed = System.currentTimeMillis() - start;
         PATTERNLESS_LOGGER.info("");
         ROOT_LOGGER.info("Finished querying {} elements in {} ms", callQuery.size(), elapsed);
-        ROOT_LOGGER.info("{}/{} were false.", failCount.get(), callQuery.size());
+//        ROOT_LOGGER.info("{}/{} were false.", failCount.get(), callQuery.size());
         throughput(elapsed, callQuery.size());
         latency(elapsed, callQuery.size());
     }
@@ -109,7 +105,7 @@ public final class TestApplication {
         if (falsePositives.isEmpty()) {
             ROOT_LOGGER.info("No false positives were found!");
         } else {
-            ROOT_LOGGER.info("False positives ({})", falsePositives.size());
+            ROOT_LOGGER.info("False positives: {}/{}", falsePositives.size(), listQuery.size());
             ROOT_LOGGER.debug("{}", falsePositives);
         }
     }
