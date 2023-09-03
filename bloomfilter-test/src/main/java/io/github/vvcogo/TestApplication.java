@@ -27,7 +27,7 @@ public final class TestApplication {
         checkArguments(args);
 
         // for use with jConsole
-        Thread.sleep(3000);
+//        Thread.sleep(3000);
 
         JavaExtensionLoader extensionLoader = new JavaExtensionLoader();
         loadExtensions(extensionLoader);
@@ -185,11 +185,11 @@ public final class TestApplication {
 
     private static void throughput(long elapsed, long numElems) {
         double th = numElems/(elapsed / 1000.0);
-        ROOT_LOGGER.info(" > Throughput: {} e/s.", Math.round(th * Math.pow(10, DECIMAL_ROUNDER_MULTIPLIER))/DECIMAL_ROUNDER_MULTIPLIER);
+        ROOT_LOGGER.info(" > Throughput: {} e/s.", th);
     }
 
     private static void latency(long elapsed, long numElems) {
         double latency = (double) elapsed/numElems;
-        ROOT_LOGGER.info(" > Latency: {} ms.", Math.round(latency * DECIMAL_ROUNDER_MULTIPLIER)/DECIMAL_ROUNDER_MULTIPLIER);
+        ROOT_LOGGER.info(" > Latency: {} ms.", latency);
     }
 }
