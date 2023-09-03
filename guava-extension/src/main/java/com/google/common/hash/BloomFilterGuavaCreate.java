@@ -6,17 +6,20 @@ import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterC
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.ByteBuffer;
+import java.nio.LongBuffer;
 
 public class BloomFilterGuavaCreate {
 
     private static class StrategyBF implements BloomFilter.Strategy {
+
+        private static final long POSITIVE_SIGN_BIT_BITMASK = 0x7FFFFFFFFFFFFFFFL;
 
         @Override
         public <T> boolean put(T object, Funnel<? super T> funnel, int numHashFunctions, BloomFilterStrategies.LockFreeBitArray bits){
             long[] indexes = getIndexes(object, funnel, numHashFunctions);
             boolean result = true;
             for(long index : indexes)
-                result = result && bits.set(index);
+                result = result && bits.set((index & POSITIVE_SIGN_BIT_BITMASK) % bits.bitSize());
             return result;
         }
 
@@ -25,7 +28,7 @@ public class BloomFilterGuavaCreate {
             long[] indexes = getIndexes(object, funnel, numHashFunctions);
             boolean result = true;
             for(long index : indexes)
-                result = result && bits.get(index);
+                result = result && bits.get((index & POSITIVE_SIGN_BIT_BITMASK) % bits.bitSize());
             return result;
         }
 
@@ -33,8 +36,11 @@ public class BloomFilterGuavaCreate {
             PrimitiveSinkBF sink = new PrimitiveSinkBF(numHashFunctions);
             funnel.funnel(elem, sink);
             HashCode hashcode = sink.hash();
-            ByteBuffer buffer = ByteBuffer.wrap(hashcode.asBytes());
-            return buffer.asLongBuffer().array();
+            ByteBuffer byteBuffer = ByteBuffer.wrap(hashcode.asBytes());
+            LongBuffer longBuffer = byteBuffer.asLongBuffer();
+            long[] longArr = new long[longBuffer.capacity()];
+            longBuffer.get(longArr);
+            return longArr;
         }
 
         @Override
@@ -73,10 +79,9 @@ public class BloomFilterGuavaCreate {
         BloomFilterStrategies.LockFreeBitArray lockFreeBitArray = new BloomFilterStrategies.LockFreeBitArray(config.bitSetSize());
         BloomFilter.Strategy strategy = new StrategyBF();
         try {
-            Constructor<?> constructor = BloomFilter.class.getDeclaredConstructor(BloomFilterStrategies.LockFreeBitArray.class, Integer.class, Funnel.class, BloomFilter.Strategy.class);
+            Constructor<?> constructor = BloomFilter.class.getDeclaredConstructor(BloomFilterStrategies.LockFreeBitArray.class, int.class, Funnel.class, BloomFilter.Strategy.class);
             constructor.setAccessible(true);
-            BloomFilter<T> bf = (BloomFilter<T>) constructor.newInstance(lockFreeBitArray, numHashFunc, funnel, strategy);
-            return bf;
+            return (BloomFilter<T>) constructor.newInstance(lockFreeBitArray, numHashFunc, funnel, strategy);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
         }
