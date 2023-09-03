@@ -3,7 +3,6 @@ package io.github.vvcogo.longfastbloomfilter.framework.extensions;
 public class ExtensionLoadException extends Exception {
 
     public ExtensionLoadException() {
-
     }
 
     public ExtensionLoadException(String message) {

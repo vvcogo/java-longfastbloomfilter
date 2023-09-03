@@ -1,6 +1,6 @@
 package io.github.vvcogo.longfastbloomfilter.guavaextension;
 
-import com.google.common.hash.Funnel;
+import com.google.common.hash.BloomFilterGuavaCreate;
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfiguration;
 import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 
@@ -12,8 +12,8 @@ public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {
 
     public GuavaBloomFilterAdapter(BloomFilterConfiguration<? super T> config) {
         this.config = config;
-        this.emptyBloomFilter = createBloomFilter();
-        this.bloomFilter = createBloomFilter();
+        this.emptyBloomFilter = BloomFilterGuavaCreate.createBloomFilter(this.config);
+        this.bloomFilter = BloomFilterGuavaCreate.createBloomFilter(this.config);
     }
 
     @Override
@@ -28,7 +28,7 @@ public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {
 
     @Override
     public void clear() {
-        this.bloomFilter = createBloomFilter();
+        this.bloomFilter = BloomFilterGuavaCreate.createBloomFilter(this.config);
     }
 
     @Override
@@ -46,14 +46,5 @@ public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {
         GuavaBloomFilterAdapter<T> copy = new GuavaBloomFilterAdapter<>(this.config);
         copy.bloomFilter = this.bloomFilter.copy();
         return copy;
-    }
-
-    private com.google.common.hash.BloomFilter<T> createBloomFilter() {
-        long expected = config.expectedNumberOfElements();
-        double fpp = config.falsePositiveRate();
-        Funnel<? super T> funnel = (from, into) -> {
-            into.putBytes(this.config.serializer().serialize(from));
-        };
-        return com.google.common.hash.BloomFilter.create(funnel, expected, fpp);
     }
 }

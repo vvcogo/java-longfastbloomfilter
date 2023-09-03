@@ -24,6 +24,5 @@ public abstract class AbstractRequiredConfigProperty implements ConfigProperty {
 
     @Override
     public void calculateValue(Properties properties) {
-
     }
 }
