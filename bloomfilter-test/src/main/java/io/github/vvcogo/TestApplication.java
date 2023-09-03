@@ -20,8 +20,6 @@ public final class TestApplication {
     private static final Logger ROOT_LOGGER = LoggerFactory.getLogger("");
     private static final Logger PATTERNLESS_LOGGER = LoggerFactory.getLogger("patternless");
     private static final File EXTENSIONS_DIRECTORY = new File("extensions/");
-    private static final int NUMBER_OF_DECIMAL_PLACES = 2;
-    private static final double DECIMAL_ROUNDER_MULTIPLIER = Math.pow(10, NUMBER_OF_DECIMAL_PLACES);
 
     public static void main(String[] args) throws InterruptedException {
         checkArguments(args);
@@ -65,7 +63,7 @@ public final class TestApplication {
             callInsert.add(Executors.callable(() -> {
                 bf.add(elem);
                 ROOT_LOGGER.debug("INSERTED: {}", elem);
-            } ));
+            }));
         }
         long start = System.currentTimeMillis();
         exec.invokeAll(callInsert);
@@ -90,7 +88,6 @@ public final class TestApplication {
         long elapsed = System.currentTimeMillis() - start;
         PATTERNLESS_LOGGER.info("");
         ROOT_LOGGER.info("Finished querying {} elements in {} ms", callQuery.size(), elapsed);
-//        ROOT_LOGGER.info("{}/{} were false.", failCount.get(), callQuery.size());
         throughput(elapsed, callQuery.size());
         latency(elapsed, callQuery.size());
     }
