@@ -73,7 +73,8 @@ public class BloomFilterGuavaCreate {
         BloomFilterStrategies.LockFreeBitArray lockFreeBitArray = new BloomFilterStrategies.LockFreeBitArray(config.bitSetSize());
         BloomFilter.Strategy strategy = new StrategyBF();
         try {
-            Constructor<?> constructor = BloomFilter.class.getConstructor(lockFreeBitArray.getClass(), Integer.class, funnel.getClass(), strategy.getClass());
+            Constructor<?> constructor = BloomFilter.class.getDeclaredConstructor(BloomFilterStrategies.LockFreeBitArray.class, Integer.class, Funnel.class, BloomFilter.Strategy.class);
+            constructor.setAccessible(true);
             BloomFilter<T> bf = (BloomFilter<T>) constructor.newInstance(lockFreeBitArray, numHashFunc, funnel, strategy);
             return bf;
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
