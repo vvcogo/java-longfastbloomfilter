@@ -25,7 +25,7 @@ public final class TestApplication {
         checkArguments(args);
 
         // for use with jConsole
-//        Thread.sleep(3000);
+        Thread.sleep(3000);
 
         JavaExtensionLoader extensionLoader = new JavaExtensionLoader();
         loadExtensions(extensionLoader);

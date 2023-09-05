@@ -4,6 +4,7 @@ target/
 !**/src/test/**/target/
 *.log
 extensions/
+smth
 
 ### IntelliJ IDEA ###
 .idea/
