@@ -2,7 +2,7 @@
 <Configuration status="WARN" monitorInterval="30">
     <Properties>
         <Property name="LOG_PATTERN">[%d{yyyy-MM-dd HH:mm:ss}] %-17t %-5p - %m%n</Property>
-        <Property name="LOG-FILE-NAME">longfastbloomfilter.log</Property>
+        <Property name="LOG-FILE-NAME">orestes-mt-10.log</Property>
     </Properties>
 
     <Appenders>

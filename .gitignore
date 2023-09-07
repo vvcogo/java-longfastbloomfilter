@@ -3,7 +3,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 *.log
-./extensions/
+extensions/
+scripts_py/
 
 ### IntelliJ IDEA ###
 .idea/
@@ -47,3 +48,6 @@ build/
 input-genoma.txt
 query-genoma.txt
 arquivo.fastq.4QS
+input.txt
+query.txt
+output.txt
