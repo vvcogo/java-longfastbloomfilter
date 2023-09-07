@@ -4,7 +4,7 @@ target/
 !**/src/test/**/target/
 *.log
 extensions/
-smthToDo
+smthToDo.md
 scripts_py/
 
 ### IntelliJ IDEA ###
