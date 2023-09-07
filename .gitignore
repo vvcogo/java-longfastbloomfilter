@@ -48,3 +48,6 @@ build/
 input-genoma.txt
 query-genoma.txt
 arquivo.fastq.4QS
+input.txt
+query.txt
+output.txt
