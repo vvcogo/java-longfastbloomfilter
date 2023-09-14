@@ -2,6 +2,7 @@ package io.github.vvcogo.longfastbloomfilter.framework.bloomfilter;
 
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.AtomicLongBitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.BitSet;
+import io.github.vvcogo.longfastbloomfilter.framework.bitset.LongBitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfiguration;
 
 import java.util.Objects;
@@ -13,7 +14,7 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
 
     public StandardLongBloomFilter(BloomFilterConfiguration<? super T> config) {
         this.configuration = config;
-        this.bitSet = new AtomicLongBitSet(config.bitSetSize());
+        this.bitSet = new LongBitSet(config.bitSetSize()); //new AtomicLongBitSet(config.bitSetSize());
     }
 
     @Override
