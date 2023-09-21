@@ -23,11 +23,11 @@
     <Loggers>
         <Logger name="patternless" level="debug" additivity="false">
             <AppenderRef ref="patternless-console"/>
-            <AppenderRef ref="patternless-log-file"/>
+            <!--<AppenderRef ref="patternless-log-file"/>-->
         </Logger>
         <Root level="info">
             <AppenderRef ref="console"/>
-            <AppenderRef ref="log-file"/>
-        </Root>
-    </Loggers>
-</Configuration>
+            <!-- <AppenderRef ref="log-file"/>-->
+         </Root>
+     </Loggers>
+ </Configuration>
