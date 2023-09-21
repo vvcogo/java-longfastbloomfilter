@@ -15,9 +15,10 @@ public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {
         this.bloomFilter = BloomFilterGuavaCreate.createBloomFilter(this.config);
     }
 
-    private GuavaBloomFilterAdapter(BloomFilterConfiguration<? super T> config, boolean isEmpty){
-        this.config = config;
-        this.isEmpty = isEmpty;
+    private GuavaBloomFilterAdapter(GuavaBloomFilterAdapter other){
+        this.config = other.config;
+        this.isEmpty = other.isEmpty;
+        this.bloomFilter = other.bloomFilter.copy();
     }
 
     @Override
@@ -48,8 +49,6 @@ public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {
 
     @Override
     public BloomFilter<T> copy() {
-        GuavaBloomFilterAdapter<T> copy = new GuavaBloomFilterAdapter<>(this.config, this.isEmpty);
-        copy.bloomFilter = this.bloomFilter.copy();
-        return copy;
+        return new GuavaBloomFilterAdapter<>(this);
     }
 }
