@@ -79,9 +79,9 @@ public final class BloomFilterGuavaCreate {
     }
 
     public static <T> BloomFilter<T> createBloomFilter(BloomFilterConfiguration<? super T> config) {
-        int numHashFunc = config.numberOfHashFunctions();
-        Funnel<? super T> funnel = (from, into) -> into.putBytes(config.serializer().serialize(from));
-        BloomFilterStrategies.LockFreeBitArray lockFreeBitArray = new BloomFilterStrategies.LockFreeBitArray(config.bitSetSize());
+        int numHashFunc = config.getNumberOfHashFunctions();
+        Funnel<? super T> funnel = (from, into) -> into.putBytes(config.getSerializer().serialize(from));
+        BloomFilterStrategies.LockFreeBitArray lockFreeBitArray = new BloomFilterStrategies.LockFreeBitArray(config.getBitSetSize());
         BloomFilter.Strategy strategy = BloomFilterStrategies.MURMUR128_MITZ_64;
         try {
             Constructor<?> constructor = BloomFilter.class.getDeclaredConstructor(BloomFilterStrategies.LockFreeBitArray.class, int.class, Funnel.class, BloomFilter.Strategy.class);

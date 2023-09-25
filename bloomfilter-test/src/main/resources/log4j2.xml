@@ -2,7 +2,7 @@
 <Configuration status="WARN" monitorInterval="30">
     <Properties>
         <Property name="LOG_PATTERN">[%d{yyyy-MM-dd HH:mm:ss}] %-17t %-5p - %m%n</Property>
-        <Property name="LOG-FILE-NAME">orestes-mt-10.log</Property>
+        <Property name="LOG-FILE-NAME">orestes-st-10.log</Property>
     </Properties>
 
     <Appenders>
@@ -23,11 +23,11 @@
     <Loggers>
         <Logger name="patternless" level="debug" additivity="false">
             <AppenderRef ref="patternless-console"/>
-            <AppenderRef ref="patternless-log-file"/>
+<!--            <AppenderRef ref="patternless-log-file"/>-->
         </Logger>
         <Root level="info">
             <AppenderRef ref="console"/>
-            <AppenderRef ref="log-file"/>
+<!--            <AppenderRef ref="log-file"/>-->
         </Root>
     </Loggers>
 </Configuration>

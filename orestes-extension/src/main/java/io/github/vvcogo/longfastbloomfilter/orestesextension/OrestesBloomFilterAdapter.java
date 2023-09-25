@@ -14,17 +14,17 @@ public class OrestesBloomFilterAdapter<T> implements BloomFilter<T> {
 
     public OrestesBloomFilterAdapter(BloomFilterConfiguration<? super T> config){
         this.config = config;
-        this.serializer = this.config.serializer();
-        int expectedNumberOfElements = (int) this.config.expectedNumberOfElements();
-        double falsePositiveRate = config.falsePositiveRate();
-        int bitSetSize = (int)this.config.bitSetSize();
-        int numHashFuncs = this.config.numberOfHashFunctions();
+        this.serializer = this.config.getSerializer();
+        int expectedNumberOfElements = (int) this.config.getExpectedNumberOfElements();
+        double falsePositiveRate = config.getFalsePositiveRate();
+        int bitSetSize = (int)this.config.getBitSetSize();
+        int numHashFuncs = this.config.getNumberOfHashFunctions();
         this.bloomFilter = new FilterBuilder(expectedNumberOfElements, falsePositiveRate)
                             .size(bitSetSize)
                             .hashes(numHashFuncs)
                             .hashFunction((b, m, k) -> {
                                 int[] resultHashInt = new int[k];
-                                long[] bytesHashLong = this.config.hashFunction().hash(b, k, m);
+                                long[] bytesHashLong = this.config.getHashFunction().hash(b, k, m);
                                 for(int i = 0; i < k; i++)
                                     resultHashInt[i] = (int)bytesHashLong[i];
                                 return resultHashInt;

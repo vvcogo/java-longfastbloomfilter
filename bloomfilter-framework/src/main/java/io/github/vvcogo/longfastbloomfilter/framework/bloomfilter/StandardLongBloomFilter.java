@@ -13,7 +13,7 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
 
     public StandardLongBloomFilter(BloomFilterConfiguration<? super T> config) {
         this.configuration = config;
-        this.bitSet = new AtomicLongBitSet(config.bitSetSize());
+        this.bitSet = new AtomicLongBitSet(config.getBitSetSize());
     }
 
     @Override
@@ -61,7 +61,8 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
     public boolean equals(Object obj) {
         if (obj == this)
             return true;
-        if (obj instanceof StandardLongBloomFilter<?> other) {
+        if (obj instanceof StandardLongBloomFilter<?>) {
+            StandardLongBloomFilter<?> other = (StandardLongBloomFilter<?>) obj;
             return this.configuration.equals(other.configuration) && this.bitSet.equals(other.bitSet);
         }
         return false;
@@ -78,12 +79,12 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
     }
 
     private long[] getHashes(byte[] bytes) {
-        long size = this.configuration.bitSetSize();
-        int numbHashes = this.configuration.numberOfHashFunctions();
-        return this.configuration.hashFunction().hash(bytes, numbHashes, size);
+        long size = this.configuration.getBitSetSize();
+        int numbHashes = this.configuration.getNumberOfHashFunctions();
+        return this.configuration.getHashFunction().hash(bytes, numbHashes, size);
     }
 
     private byte[] toBytes(T element) {
-        return this.configuration.serializer().serialize(element);
+        return this.configuration.getSerializer().serialize(element);
     }
 }

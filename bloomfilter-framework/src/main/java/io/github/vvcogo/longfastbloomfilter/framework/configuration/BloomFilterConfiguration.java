@@ -10,25 +10,67 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 
-public record BloomFilterConfiguration<T>(long bitSetSize,
-                                          long expectedNumberOfElements,
-                                          int numberOfHashFunctions,
-                                          double falsePositiveRate,
-                                          HashingAlgorithm hashFunction,
-                                          String bloomFilterType,
-                                          Serializer<? super T> serializer) implements Serializable {
+public final class BloomFilterConfiguration<T> implements Serializable {
+
+    private final long bitSetSize;
+    private final long expectedNumberOfElements;
+    private final int numberOfHashFunctions;
+    private final double falsePositiveRate;
+    private final HashingAlgorithm hashFunction;
+    private final String bloomFilterType;
+    private final Serializer<? super T> serializer;
+
+    public BloomFilterConfiguration(long bitSetSize, long expectedNumberOfElements, int numberOfHashFunctions,
+                                    double falsePositiveRate, HashingAlgorithm hashFunction,
+                                    String bloomFilterType, Serializer<? super T> serializer) {
+        this.bitSetSize = bitSetSize;
+        this.expectedNumberOfElements = expectedNumberOfElements;
+        this.numberOfHashFunctions = numberOfHashFunctions;
+        this.falsePositiveRate = falsePositiveRate;
+        this.hashFunction = hashFunction;
+        this.bloomFilterType = bloomFilterType;
+        this.serializer = serializer;
+    }
+
+    public long getBitSetSize() {
+        return bitSetSize;
+    }
+
+    public long getExpectedNumberOfElements() {
+        return expectedNumberOfElements;
+    }
+
+    public int getNumberOfHashFunctions() {
+        return numberOfHashFunctions;
+    }
+
+    public double getFalsePositiveRate() {
+        return falsePositiveRate;
+    }
+
+    public HashingAlgorithm getHashFunction() {
+        return hashFunction;
+    }
+
+    public String getBloomFilterType() {
+        return bloomFilterType;
+    }
+
+    public Serializer<? super T> getSerializer() {
+        return serializer;
+    }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("BloomFilter Configuration:").append(System.lineSeparator())
-                .append(" > BitSet Size: ").append(bitSetSize).append(System.lineSeparator())
-                .append(" > Expected Number of Elements: ").append(expectedNumberOfElements).append(System.lineSeparator())
-                .append(" > Number of Hash Functions: ").append(numberOfHashFunctions).append(System.lineSeparator())
-                .append(" > False Positive Probability: ").append(falsePositiveRate).append(System.lineSeparator())
-                .append(" > Hashing Algorihm: ").append(hashFunction.getClass().getSimpleName()).append(System.lineSeparator())
-                .append(" > BloomFilter Type: ").append(bloomFilterType).append(System.lineSeparator())
-                .append(" > Serializer class: ").append(serializer.getClass().getName());
+                .append(" > BitSet Size: ").append(this.bitSetSize).append(System.lineSeparator())
+                .append(" > Expected Number of Elements: ").append(this.expectedNumberOfElements).append(System.lineSeparator())
+                .append(" > Number of Hash Functions: ").append(this.numberOfHashFunctions).append(System.lineSeparator())
+                .append(" > False Positive Probability: ").append(this.falsePositiveRate).append(System.lineSeparator())
+                .append(" > Hashing Algorihm: ").append(this.hashFunction.getClass().getSimpleName()).append(System.lineSeparator())
+                .append(" > BloomFilter Type: ").append(this.bloomFilterType).append(System.lineSeparator())
+                .append(" > Serializer class: ").append(this.serializer.getClass().getName());
         return sb.toString();
     }
 

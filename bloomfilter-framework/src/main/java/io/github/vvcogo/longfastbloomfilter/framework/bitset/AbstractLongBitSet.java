@@ -79,7 +79,8 @@ public abstract class AbstractLongBitSet implements BitSet {
     public final boolean equals(Object obj) {
         if (obj == this)
             return true;
-        if (obj instanceof AbstractLongBitSet other) {
+        if (obj instanceof AbstractLongBitSet) {
+            AbstractLongBitSet other = (AbstractLongBitSet) obj;
             boolean equalAttributes = this.size == other.size &&
                                         this.numbOfArrays == other.numbOfArrays &&
                                         this.lastArraySize == other.lastArraySize &&

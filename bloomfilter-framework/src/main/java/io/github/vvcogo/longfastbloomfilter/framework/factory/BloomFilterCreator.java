@@ -11,7 +11,7 @@ public final class BloomFilterCreator {
     }
 
     public static <T> BloomFilter<T> createBloomFilter(BloomFilterConfiguration<T> config){
-        String bfType = config.bloomFilterType();
+        String bfType = config.getBloomFilterType();
         return BloomFilterFactoryManager.getFactory(bfType).create(config);
     }
 
