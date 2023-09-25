@@ -7,18 +7,24 @@ import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {
 
     private final BloomFilterConfiguration<? super T> config;
-    private final com.google.common.hash.BloomFilter<T> emptyBloomFilter;
     private com.google.common.hash.BloomFilter<T> bloomFilter;
+    private boolean isEmpty = false;
 
     public GuavaBloomFilterAdapter(BloomFilterConfiguration<? super T> config) {
         this.config = config;
-        this.emptyBloomFilter = BloomFilterGuavaCreate.createBloomFilter(this.config);
         this.bloomFilter = BloomFilterGuavaCreate.createBloomFilter(this.config);
+    }
+
+    private GuavaBloomFilterAdapter(GuavaBloomFilterAdapter other){
+        this.config = other.config;
+        this.isEmpty = other.isEmpty;
+        this.bloomFilter = other.bloomFilter.copy();
     }
 
     @Override
     public void add(T element) {
         this.bloomFilter.put(element);
+        this.isEmpty = false;
     }
 
     @Override
@@ -33,7 +39,7 @@ public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {
 
     @Override
     public boolean isEmpty() {
-        return this.bloomFilter.equals(this.emptyBloomFilter);
+        return isEmpty;
     }
 
     @Override
@@ -43,8 +49,6 @@ public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {
 
     @Override
     public BloomFilter<T> copy() {
-        GuavaBloomFilterAdapter<T> copy = new GuavaBloomFilterAdapter<>(this.config);
-        copy.bloomFilter = this.bloomFilter.copy();
-        return copy;
+        return new GuavaBloomFilterAdapter<>(this);
     }
 }

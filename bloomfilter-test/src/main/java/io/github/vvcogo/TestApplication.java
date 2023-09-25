@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 
 public final class TestApplication {
 
@@ -25,7 +26,7 @@ public final class TestApplication {
         checkArguments(args);
 
         // for use with jConsole
-//        Thread.sleep(3000);
+        Thread.sleep(3000);
 
         JavaExtensionLoader extensionLoader = new JavaExtensionLoader();
         loadExtensions(extensionLoader);
@@ -35,14 +36,15 @@ public final class TestApplication {
         ROOT_LOGGER.info("{}", bc);
         BloomFilter<String> bf = BloomFilterCreator.createBloomFilter(bc);
 
-        ExecutorService exec = createThreadPool(args.length == 4 ? args[3] : null);
+        int numbThreads = getNumberOfThreads(args.length == 4 ? args[3] : null);
+        ExecutorService exec = Executors.newFixedThreadPool(numbThreads);
 
         List<String> listInsert = manageFile(args[0], "insert");
         List<String> listQuery = manageFile(args[1], "query");
         Set<String> setInsert = new HashSet<>(listInsert);
 
-        executeInserts(exec, bf, listInsert);
-        executeQueries(exec, bf, listQuery);
+        executeInserts(exec, bf, listInsert, numbThreads);
+        executeQueries(exec, bf, listQuery, numbThreads);
         checkFalsePositives(bf, setInsert, listQuery);
 
         exec.shutdown();
@@ -57,39 +59,27 @@ public final class TestApplication {
         }
     }
 
-    private static void executeInserts(ExecutorService exec, BloomFilter<String> bf, List<String> listInsert) throws InterruptedException {
-        List<Callable<Object>> callInsert = new ArrayList<>();
-        for(String elem : listInsert){
-            callInsert.add(Executors.callable(() -> {
-                bf.add(elem);
-                ROOT_LOGGER.debug("INSERTED: {}", elem);
-            }));
-        }
+    private static void executeInserts(ExecutorService exec, BloomFilter<String> bf, List<String> listInsert, int numbThreads) throws InterruptedException {
+        List<Callable<Object>> callInsert = createInvokeList(listInsert, numbThreads, bf::add);
         long start = System.currentTimeMillis();
         exec.invokeAll(callInsert);
         long elapsed = System.currentTimeMillis() - start;
         PATTERNLESS_LOGGER.info("");
-        ROOT_LOGGER.info("Finished inserting {} elements in {} ms", callInsert.size(), elapsed);
-        throughput(elapsed, callInsert.size());
-        latency(elapsed, callInsert.size());
+        ROOT_LOGGER.info("Finished inserting {} elements in {} ms", listInsert.size(), elapsed);
+        throughput(elapsed, listInsert.size());
+        latency(elapsed, listInsert.size());
         PATTERNLESS_LOGGER.info("");
     }
 
-    private static void executeQueries(ExecutorService exec, BloomFilter<String> bf, List<String> listQuery) throws InterruptedException {
-        List<Callable<Object>> callQuery = new ArrayList<>();
-        for (String elem : listQuery) {
-            callQuery.add(Executors.callable(() -> {
-                boolean result = bf.mightContains(elem);
-                ROOT_LOGGER.debug("QUERY ({}): {}", elem, result);
-            }));
-        }
+    private static void executeQueries(ExecutorService exec, BloomFilter<String> bf, List<String> listQuery, int numbThreads) throws InterruptedException {
+        List<Callable<Object>> callQuery = createInvokeList(listQuery, numbThreads, bf::mightContains);
         long start = System.currentTimeMillis();
         exec.invokeAll(callQuery);
         long elapsed = System.currentTimeMillis() - start;
         PATTERNLESS_LOGGER.info("");
-        ROOT_LOGGER.info("Finished querying {} elements in {} ms", callQuery.size(), elapsed);
-        throughput(elapsed, callQuery.size());
-        latency(elapsed, callQuery.size());
+        ROOT_LOGGER.info("Finished querying {} elements in {} ms", listQuery.size(), elapsed);
+        throughput(elapsed, listQuery.size());
+        latency(elapsed, listQuery.size());
     }
 
     private static void checkFalsePositives(BloomFilter<String> bf, Set<String> setInsert, List<String> listQuery) {
@@ -126,7 +116,7 @@ public final class TestApplication {
         return null;
     }
 
-    private static ExecutorService createThreadPool(String numbThreadsString) {
+    private static int getNumberOfThreads(String numbThreadsString) {
         int numberOfThreads = Runtime.getRuntime().availableProcessors() - 1;
         if (numbThreadsString != null) {
             int readNumber;
@@ -142,7 +132,7 @@ public final class TestApplication {
             }
         }
         ROOT_LOGGER.info("Creating Thread Pool with {} threads.\n", numberOfThreads);
-        return Executors.newFixedThreadPool(numberOfThreads);
+        return numberOfThreads;
     }
 
     private static List<String> manageFile(String path, String type){
@@ -181,12 +171,27 @@ public final class TestApplication {
     }
 
     private static void throughput(long elapsed, long numElems) {
-        double th = numElems/(elapsed / 1000.0);
+        double th = numElems / (elapsed / 1000.0);
         ROOT_LOGGER.info(" > Throughput: {} e/s.", th);
     }
 
     private static void latency(long elapsed, long numElems) {
-        double latency = (double) elapsed/numElems;
+        double latency = ((double) elapsed) / numElems;
         ROOT_LOGGER.info(" > Latency: {} ms.", latency);
+    }
+
+    private static List<Callable<Object>> createInvokeList(List<String> dataList, int numbThreads, Consumer<String> consumer) {
+        List<Callable<Object>> result = new ArrayList<>();
+        int size = dataList.size();
+        int amountPerThread = size / numbThreads;
+        for (int i = 0; i < numbThreads; i++) {
+            int threadIndex = i;
+            result.add(Executors.callable(() -> {
+               for (int j = threadIndex * amountPerThread; j < amountPerThread * (threadIndex + 1); j++) {
+                   consumer.accept(dataList.get(j));
+               }
+            }));
+        }
+        return result;
     }
 }
