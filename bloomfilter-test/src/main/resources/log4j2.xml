@@ -2,11 +2,6 @@
 <Configuration status="WARN" monitorInterval="30">
     <Properties>
         <Property name="LOG_PATTERN">[%d{yyyy-MM-dd HH:mm:ss}] %-17t %-5p - %m%n</Property>
-<<<<<<< HEAD
-        <Property name="LOG-FILE-NAME">orestes-st-10.log</Property>
-=======
-        <Property name="LOG-FILE-NAME">guava-st-10.log</Property>
->>>>>>> d553ea620f33968b43678c840094d9c3ce1401df
     </Properties>
 
     <Appenders>
@@ -16,18 +11,17 @@
         <Console name="patternless-console" target="SYSTEM_OUT" follow="true">
             <PatternLayout pattern="%m%n"/>
         </Console>
-        <File name="log-file" fileName="logs/${LOG-FILE-NAME}">
-            <PatternLayout pattern="${LOG_PATTERN}"/>
-        </File>
-        <File name="patternless-log-file" fileName="logs/${LOG-FILE-NAME}">
-            <PatternLayout pattern="%m%n"/>
-        </File>
+<!--        <File name="log-file" fileName="logs/${LOG-FILE-NAME}">-->
+<!--            <PatternLayout pattern="${LOG_PATTERN}"/>-->
+<!--        </File>-->
+<!--        <File name="patternless-log-file" fileName="logs/${LOG-FILE-NAME}">-->
+<!--            <PatternLayout pattern="%m%n"/>-->
+<!--        </File>-->
     </Appenders>
 
     <Loggers>
         <Logger name="patternless" level="debug" additivity="false">
             <AppenderRef ref="patternless-console"/>
-<<<<<<< HEAD
 <!--            <AppenderRef ref="patternless-log-file"/>-->
         </Logger>
         <Root level="info">
@@ -36,13 +30,3 @@
         </Root>
     </Loggers>
 </Configuration>
-=======
-            <!--<AppenderRef ref="patternless-log-file"/>-->
-        </Logger>
-        <Root level="info">
-            <AppenderRef ref="console"/>
-            <!-- <AppenderRef ref="log-file"/>-->
-         </Root>
-     </Loggers>
- </Configuration>
->>>>>>> d553ea620f33968b43678c840094d9c3ce1401df

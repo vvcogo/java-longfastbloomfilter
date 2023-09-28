@@ -26,7 +26,7 @@ public final class TestApplication {
         checkArguments(args);
 
         // for use with jConsole
-        Thread.sleep(3000);
+        // Thread.sleep(3000);
 
         JavaExtensionLoader extensionLoader = new JavaExtensionLoader();
         loadExtensions(extensionLoader);
@@ -43,8 +43,11 @@ public final class TestApplication {
         List<String> listQuery = manageFile(args[1], "query");
         Set<String> setInsert = new HashSet<>(listInsert);
 
-        executeInserts(exec, bf, listInsert, numbThreads);
-        executeQueries(exec, bf, listQuery, numbThreads);
+        List<Callable<Object>> callInsert = createInvokeList(listInsert, numbThreads, bf::add);
+        List<Callable<Object>> callQuery = createInvokeList(listQuery, numbThreads, bf::mightContains);
+
+        executeTasks(exec, listInsert, callInsert, "Finished inserting {} elements in {} ms");
+        executeTasks(exec, listQuery, callQuery, "Finished querying {} elements in {} ms");
         checkFalsePositives(bf, setInsert, listQuery);
 
         exec.shutdown();
@@ -59,27 +62,16 @@ public final class TestApplication {
         }
     }
 
-    private static void executeInserts(ExecutorService exec, BloomFilter<String> bf, List<String> listInsert, int numbThreads) throws InterruptedException {
-        List<Callable<Object>> callInsert = createInvokeList(listInsert, numbThreads, bf::add);
+    private static void executeTasks(ExecutorService exec, List<String> elementList, List<Callable<Object>> callableList,
+                                     String message) throws InterruptedException {
         long start = System.currentTimeMillis();
-        exec.invokeAll(callInsert);
+        exec.invokeAll(callableList);
         long elapsed = System.currentTimeMillis() - start;
         PATTERNLESS_LOGGER.info("");
-        ROOT_LOGGER.info("Finished inserting {} elements in {} ms", listInsert.size(), elapsed);
-        throughput(elapsed, listInsert.size());
-        latency(elapsed, listInsert.size());
+        ROOT_LOGGER.info(message, elementList.size(), elapsed);
+        throughput(elapsed, elementList.size());
+        latency(elapsed, elementList.size());
         PATTERNLESS_LOGGER.info("");
-    }
-
-    private static void executeQueries(ExecutorService exec, BloomFilter<String> bf, List<String> listQuery, int numbThreads) throws InterruptedException {
-        List<Callable<Object>> callQuery = createInvokeList(listQuery, numbThreads, bf::mightContains);
-        long start = System.currentTimeMillis();
-        exec.invokeAll(callQuery);
-        long elapsed = System.currentTimeMillis() - start;
-        PATTERNLESS_LOGGER.info("");
-        ROOT_LOGGER.info("Finished querying {} elements in {} ms", listQuery.size(), elapsed);
-        throughput(elapsed, listQuery.size());
-        latency(elapsed, listQuery.size());
     }
 
     private static void checkFalsePositives(BloomFilter<String> bf, Set<String> setInsert, List<String> listQuery) {
