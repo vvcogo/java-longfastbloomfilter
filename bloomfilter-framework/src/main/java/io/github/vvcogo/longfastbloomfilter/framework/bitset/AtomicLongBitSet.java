@@ -12,8 +12,6 @@ public class AtomicLongBitSet extends AbstractLongBitSet {
 
     @Override
     protected void set(int arrayIndex, int elementIndex, long bitIndex) {
-        if (get(arrayIndex, elementIndex, bitIndex))
-            return;
         long bitMask = 1L << bitIndex;
         boolean set = false;
         while (!set) {
