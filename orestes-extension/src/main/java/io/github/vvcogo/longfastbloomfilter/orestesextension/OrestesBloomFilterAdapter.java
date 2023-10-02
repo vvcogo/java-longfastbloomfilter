@@ -6,6 +6,9 @@ import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
 import orestes.bloomfilter.FilterBuilder;
 
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+
 public class OrestesBloomFilterAdapter<T> implements BloomFilter<T> {
 
     private final BloomFilterConfiguration<? super T> config;
@@ -23,11 +26,15 @@ public class OrestesBloomFilterAdapter<T> implements BloomFilter<T> {
                             .size(bitSetSize)
                             .hashes(numHashFuncs)
                             .hashFunction((b, m, k) -> {
-                                int[] resultHashInt = new int[k];
-                                long[] bytesHashLong = this.config.getHashFunction().hash(b, k, m);
-                                for(int i = 0; i < k; i++)
-                                    resultHashInt[i] = (int)bytesHashLong[i];
-                                return resultHashInt;
+                                ByteBuffer buffer = ByteBuffer.allocate(k * Integer.BYTES);
+                                IntBuffer intBuffer = buffer.asIntBuffer();
+                                ByteBuffer hashesBuffer = this.config.getHashFunction().hash(b, k, m);
+                                while (hashesBuffer.remaining() > 7) {
+                                    long value = hashesBuffer.getLong();
+                                    int index = (int) value;
+                                    intBuffer.put((index & Integer.MAX_VALUE) % m);
+                                }
+                                return intBuffer.array();
                             })
                             .buildBloomFilter();
     }

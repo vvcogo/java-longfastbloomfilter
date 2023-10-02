@@ -1,7 +1,7 @@
 package io.github.vvcogo.longfastbloomfilter.framework.configuration;
 
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.properties.ConfigProperties;
-import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFunction;
+import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashFactory;
 import io.github.vvcogo.longfastbloomfilter.framework.hashing.HashingAlgorithm;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.Serializer;
 import io.github.vvcogo.longfastbloomfilter.framework.serialization.SerializerFactory;
@@ -80,7 +80,7 @@ public final class BloomFilterConfiguration<T> implements Serializable {
             long expectedElems = Long.parseLong(properties.getProperty(ConfigProperties.EXPECTED_ELEMS.getName()));
             int numbHash = Integer.parseInt(properties.getProperty(ConfigProperties.NUMBER_HASH_FUNCTIONS.getName()));
             double fpp = Double.parseDouble(properties.getProperty(ConfigProperties.FALSE_POSITIVE_PROBABILITY.getName()));
-            HashingAlgorithm hashingAlgorithm = HashFunction.valueOf(properties.getProperty(ConfigProperties.HASH_FUNCTION.getName())).getHashingAlgorithm();
+            HashingAlgorithm hashingAlgorithm = HashFactory.getHashingAlgorithm(properties.getProperty(ConfigProperties.HASH_FUNCTION.getName()));
             String type = properties.getProperty(ConfigProperties.BLOOMFILTER_TYPE.getName());
             Serializer<? super E> serializer = SerializerFactory.createSerializer(properties.getProperty(ConfigProperties.SERIALIZER.getName()));
             return new BloomFilterConfiguration<>(bitSetSize, expectedElems, numbHash, fpp, hashingAlgorithm, type, serializer);

@@ -1,5 +1,8 @@
 package io.github.vvcogo.longfastbloomfilter.framework.hashing;
 
+import java.nio.ByteBuffer;
+import java.nio.LongBuffer;
+
 public final class MurmurHash {
 
     private static final long M = 0xc6a4a7935bd1e995L;
@@ -52,28 +55,41 @@ public final class MurmurHash {
     public static class MurmurHashAlgorithm implements HashingAlgorithm {
 
         @Override
-        public long[] hash(byte[] msg, int k, long m) {
-            long[] hashes = new long[k];
+        public ByteBuffer hash(byte[] msg, int k, long m) {
+            ByteBuffer buffer = ByteBuffer.allocate(k * Long.BYTES);
+            LongBuffer longBuffer = buffer.asLongBuffer();
             long seed = 0;
             for (int i = 0; i < k; i++) {
                 seed = MurmurHash.hash(msg, seed);
-                hashes[i] = (seed & POSITIVE_SIGN_BIT_BITMASK) % m;
+                long hash = (seed & POSITIVE_SIGN_BIT_BITMASK) % m;
+                longBuffer.put(hash);
             }
-            return hashes;
+            return buffer;
         }
     }
 
     public static class MurmurHashKirschMitzenmacherAlgorithm implements HashingAlgorithm {
 
         @Override
-        public long[] hash(byte[] msg, int k, long m) {
-            long[] hashes = new long[k];
+        public ByteBuffer hash(byte[] msg, int k, long m) {
+            ByteBuffer buffer = ByteBuffer.allocate(k * Long.BYTES);
+            LongBuffer longBuffer = buffer.asLongBuffer();
             long hash1 = MurmurHash.hash(msg, 0);
-            long hash2 = MurmurHash.hash(msg, hash1);
-            for (int i = 0; i < k; i++) {
-                hashes[i] = ((hash1 + i * hash2) & POSITIVE_SIGN_BIT_BITMASK) % m;
+            if (k == 1) {
+                longBuffer.put(hash1);
+                return buffer;
             }
-            return hashes;
+            long hash2 = MurmurHash.hash(msg, hash1);
+            if (k == 2) {
+                longBuffer.put(hash1);
+                longBuffer.put(hash2);
+                return buffer;
+            }
+            for (int i = 0; i < k; i++) {
+                long hash = ((hash1 + i * hash2) & POSITIVE_SIGN_BIT_BITMASK) % m;
+                longBuffer.put(hash);
+            }
+            return buffer;
         }
     }
 }
