@@ -8,48 +8,59 @@ import io.github.vvcogo.longfastbloomfilter.framework.extensions.BloomFilterExte
 import io.github.vvcogo.longfastbloomfilter.framework.extensions.ExtensionLoadException;
 import io.github.vvcogo.longfastbloomfilter.framework.extensions.JavaExtensionLoader;
 import io.github.vvcogo.longfastbloomfilter.framework.factory.BloomFilterCreator;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
+import java.util.logging.ConsoleHandler;
+import java.util.logging.Logger;
 
 public final class TestApplication {
 
-    private static final Logger ROOT_LOGGER = LoggerFactory.getLogger("");
-    private static final Logger PATTERNLESS_LOGGER = LoggerFactory.getLogger("patternless");
+    private static final Logger LOGGER = Logger.getLogger("longfastbloomfilter");
     private static final File EXTENSIONS_DIRECTORY = new File("extensions/");
+    private static final int WARMUP_AMOUNT = 50;
 
-    public static void main(String[] args) throws InterruptedException {
+    static {
+        LOGGER.setUseParentHandlers(false);
+        ConsoleHandler handler = new ConsoleHandler();
+        handler.setFormatter(new LogsFormat());
+        LOGGER.addHandler(handler);
+    }
+
+    public static void main(String[] args) throws InterruptedException, ExecutionException {
         checkArguments(args);
-
-        // for use with jConsole
-        // Thread.sleep(3000);
 
         JavaExtensionLoader extensionLoader = new JavaExtensionLoader();
         loadExtensions(extensionLoader);
 
-        ROOT_LOGGER.info("Loading config from file: {}", args[2]);
+        LOGGER.info(() -> "Loading config from file: " + args[2]);
         BloomFilterConfiguration<String> bc = loadConfiguration(args[2]);
-        ROOT_LOGGER.info("{}", bc);
+        LOGGER.info(bc::toString);
         BloomFilter<String> bf = BloomFilterCreator.createBloomFilter(bc);
+        executeWarmUp(bf);
+        LOGGER.info(() -> "Warmed up bloomfilter with " + WARMUP_AMOUNT + " inserts."   );
 
         int numbThreads = getNumberOfThreads(args.length == 4 ? args[3] : null);
         ExecutorService exec = Executors.newFixedThreadPool(numbThreads);
 
+        LOGGER.info("Reading insert file...");
         List<String> listInsert = manageFile(args[0], "insert");
+        LOGGER.info("Reading query file...");
         List<String> listQuery = manageFile(args[1], "query");
         Set<String> setInsert = new HashSet<>(listInsert);
 
-        List<Callable<Object>> callInsert = createInvokeList(listInsert, numbThreads, bf::add);
-        List<Callable<Object>> callQuery = createInvokeList(listQuery, numbThreads, bf::mightContains);
+        List<Runnable> callInsert = createInvokeList(listInsert, numbThreads, bf::add);
+        List<Runnable> callQuery = createInvokeList(listQuery, numbThreads, bf::mightContains);
 
-        executeTasks(exec, listInsert, callInsert, "Finished inserting {} elements in {} ms");
-        executeTasks(exec, listQuery, callQuery, "Finished querying {} elements in {} ms");
+        LOGGER.info("Executing inserts...");
+        executeTasks(exec, listInsert, callInsert, "Finished inserting %s elements in %s ms");
+        LOGGER.info("Executing queries...");
+        executeTasks(exec, listQuery, callQuery, "Finished querying %s elements in %s ms");
         checkFalsePositives(bf, setInsert, listQuery);
 
+        LOGGER.info(() -> "Shuting down...");
         exec.shutdown();
     }
 
@@ -57,21 +68,33 @@ public final class TestApplication {
         if(args.length < 3 || args.length > 4) {
             String filePath = TestApplication.class.getProtectionDomain().getCodeSource().getLocation().getPath();
             String jarFileName = filePath.substring(filePath.lastIndexOf("/"));
-            ROOT_LOGGER.error("Usage: .{} <insert file> <query file> <config file> [number of threads]", jarFileName);
+            LOGGER.severe(() -> "Usage: ." + jarFileName + " <insert file> <query file> <config file> [number of threads]");
             System.exit(1);
         }
     }
 
-    private static void executeTasks(ExecutorService exec, List<String> elementList, List<Callable<Object>> callableList,
-                                     String message) throws InterruptedException {
+    private static void executeWarmUp(BloomFilter<String> bloomFilter) {
+        for (int i = 0; i < WARMUP_AMOUNT ; i += 1) {
+            bloomFilter.add((i * 64) + "");
+        }
+    }
+
+    private static void executeTasks(ExecutorService exec, List<String> elementList, List<Runnable> callableList,
+                                     String message) throws InterruptedException, ExecutionException {
+        List<Future<?>> tasks = new ArrayList<>(callableList.size());
         long start = System.currentTimeMillis();
-        exec.invokeAll(callableList);
+        for (Runnable task : callableList) {
+            tasks.add(exec.submit(task));
+        }
+        for (Future<?> task : tasks) {
+            task.get();
+        }
         long elapsed = System.currentTimeMillis() - start;
-        PATTERNLESS_LOGGER.info("");
-        ROOT_LOGGER.info(message, elementList.size(), elapsed);
+        LOGGER.info("");
+        LOGGER.info(() -> String.format(message, elementList.size(), elapsed));
         throughput(elapsed, elementList.size());
         latency(elapsed, elementList.size());
-        PATTERNLESS_LOGGER.info("");
+        LOGGER.info("");
     }
 
     private static void checkFalsePositives(BloomFilter<String> bf, Set<String> setInsert, List<String> listQuery) {
@@ -82,10 +105,9 @@ public final class TestApplication {
             }
         }
         if (falsePositives.isEmpty()) {
-            ROOT_LOGGER.info("No false positives were found!");
+            LOGGER.info(() ->"No false positives were found!");
         } else {
-            ROOT_LOGGER.info("False positives: {}/{}", falsePositives.size(), listQuery.size());
-            ROOT_LOGGER.debug("{}", falsePositives);
+            LOGGER.info(() -> "False positives: " + falsePositives.size() + "/" + listQuery.size());
         }
     }
 
@@ -96,13 +118,13 @@ public final class TestApplication {
             BloomFilterConfigurationLoader<String> loader = BloomFilterConfigurationLoader.defaultLoader();
             return loader.loadConfig(props);
         } catch (FileNotFoundException e) {
-            ROOT_LOGGER.error("Config file not found!");
+            LOGGER.severe(() -> "Config file not found!");
             System.exit(1);
         } catch (IOException e) {
-            ROOT_LOGGER.error("Failed to read config file!");
+            LOGGER.severe(() -> "Failed to read config file!");
             System.exit(1);
         } catch (InvalidConfigurationException e) {
-            ROOT_LOGGER.error("Configuration was invalid! {}", e.getMessage());
+            LOGGER.severe(() -> "Configuration was invalid! " + e.getMessage());
             System.exit(1);
         }
         return null;
@@ -115,15 +137,15 @@ public final class TestApplication {
             try {
                 readNumber = Integer.parseInt(numbThreadsString);
                 if (readNumber <= 0) {
-                    ROOT_LOGGER.error("Number of threads cannot be smaller than 1! Using: ");
+                    LOGGER.warning(() -> "Number of threads cannot be smaller than 1! Using: ");
                 } else {
                     numberOfThreads = readNumber;
                 }
             } catch (NumberFormatException e) {
-                ROOT_LOGGER.error("Could not read number of threads!");
+                LOGGER.severe(() -> "Could not read number of threads!");
             }
         }
-        ROOT_LOGGER.info("Creating Thread Pool with {} threads.\n", numberOfThreads);
+        LOGGER.info("Created Thread Pool with " + numberOfThreads + " threads.\n");
         return numberOfThreads;
     }
 
@@ -132,15 +154,15 @@ public final class TestApplication {
         try {
             result = FileReader.readFile(path);
         } catch (FileNotFoundException e) {
-            ROOT_LOGGER.error("Can not read {} file.", type);
-            ROOT_LOGGER.error("{}", e.getMessage());
+            LOGGER.severe(() -> "Can not read " + type + " file.");
+            LOGGER.severe(e::getMessage);
             System.exit(1);
         }
         return result;
     }
 
     private static void loadExtensions(JavaExtensionLoader loader) {
-        ROOT_LOGGER.info("Trying to load extensions from {}", EXTENSIONS_DIRECTORY.getAbsolutePath());
+        LOGGER.info(() -> "Trying to load extensions from " + EXTENSIONS_DIRECTORY.getAbsolutePath());
         if (!EXTENSIONS_DIRECTORY.isDirectory())
             return;
         File[] files = EXTENSIONS_DIRECTORY.listFiles();
@@ -148,15 +170,15 @@ public final class TestApplication {
             return;
         for (File file : files) {
             if (file.getName().endsWith(".jar")) {
-                ROOT_LOGGER.info("LOADING: {}", file.getName());
+                LOGGER.info(() -> "LOADING: " + file.getName());
                 try {
                     BloomFilterExtension extension = loader.loadExtension(file);
                     String name = extension.getProperties().getName();
                     String version = extension.getProperties().getVersion();
-                    ROOT_LOGGER.info("\t> Extension loaded: {} v{}", name, version);
+                    LOGGER.info(() -> "\t> Extension loaded: " + name + " v" + version);
                     extension.onInit();
                 } catch (ExtensionLoadException e) {
-                    ROOT_LOGGER.error("Extension failed to load: {}", e.getMessage());
+                    LOGGER.severe(() -> "Extension failed to load: " + e.getMessage());
                 }
             }
         }
@@ -164,25 +186,25 @@ public final class TestApplication {
 
     private static void throughput(long elapsed, long numElems) {
         double th = numElems / (elapsed / 1000.0);
-        ROOT_LOGGER.info(" > Throughput: {} e/s.", th);
+        LOGGER.info(() -> " > Throughput: " + th + " e/s.");
     }
 
     private static void latency(long elapsed, long numElems) {
         double latency = ((double) elapsed) / numElems;
-        ROOT_LOGGER.info(" > Latency: {} ms.", latency);
+        LOGGER.info(() -> " > Latency: " + latency + " ms.");
     }
 
-    private static List<Callable<Object>> createInvokeList(List<String> dataList, int numbThreads, Consumer<String> consumer) {
-        List<Callable<Object>> result = new ArrayList<>();
+    private static List<Runnable> createInvokeList(List<String> dataList, int numbThreads, Consumer<String> consumer) {
+        List<Runnable> result = new ArrayList<>();
         int size = dataList.size();
         int amountPerThread = size / numbThreads;
         for (int i = 0; i < numbThreads; i++) {
             int threadIndex = i;
-            result.add(Executors.callable(() -> {
+            result.add(() -> {
                for (int j = threadIndex * amountPerThread; j < amountPerThread * (threadIndex + 1); j++) {
                    consumer.accept(dataList.get(j));
                }
-            }));
+            });
         }
         return result;
     }

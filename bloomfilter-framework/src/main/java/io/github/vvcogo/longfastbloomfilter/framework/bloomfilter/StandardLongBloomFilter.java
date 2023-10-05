@@ -4,6 +4,7 @@ import io.github.vvcogo.longfastbloomfilter.framework.bitset.AtomicLongBitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.BitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfiguration;
 
+import java.nio.ByteBuffer;
 import java.util.Objects;
 
 public class StandardLongBloomFilter<T> implements BloomFilter<T> {
@@ -19,17 +20,20 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
     @Override
     public void add(T element) {
         byte[] bytes = toBytes(element);
-        for (long hash : getHashes(bytes)) {
-            this.bitSet.set(hash);
+        ByteBuffer buffer = getHashes(bytes);
+        while (buffer.remaining() > 7) {
+            long index = buffer.getLong();
+            this.bitSet.set(index);
         }
     }
 
     @Override
     public boolean mightContains(T element) {
         byte[] bytes = toBytes(element);
-        long[] hashes = getHashes(bytes);
-        for (long hash : hashes) {
-            if (!this.bitSet.get(hash))
+        ByteBuffer buffer = getHashes(bytes);
+        while (buffer.remaining() > 7) {
+            long index = buffer.getLong();
+            if (!this.bitSet.get(index))
                 return false;
         }
         return true;
@@ -78,7 +82,7 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
         return String.format("%s%nConfiguration:%n%s%nBitSet:%n%s", getClass().getName(), this.configuration, this.bitSet);
     }
 
-    private long[] getHashes(byte[] bytes) {
+    private ByteBuffer getHashes(byte[] bytes) {
         long size = this.configuration.getBitSetSize();
         int numbHashes = this.configuration.getNumberOfHashFunctions();
         return this.configuration.getHashFunction().hash(bytes, numbHashes, size);
