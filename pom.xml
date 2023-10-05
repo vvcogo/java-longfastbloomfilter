@@ -14,6 +14,7 @@
         <module>guava-extension</module>
         <module>orestes-extension</module>
         <module>bloomfilter-test</module>
+        <module>testing-multithread</module>
     </modules>
 
     <properties>

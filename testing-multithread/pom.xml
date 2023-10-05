@@ -9,13 +9,12 @@
         <version>0.1</version>
     </parent>
 
-    <artifactId>bloomfilter-test</artifactId>
+    <artifactId>testing-multithread</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <log4j.version>2.20.0</log4j.version>
     </properties>
 
     <dependencies>
@@ -23,6 +22,7 @@
             <groupId>io.github.vvcogo</groupId>
             <artifactId>bloomfilter-framework</artifactId>
             <version>0.1</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
