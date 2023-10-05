@@ -2,6 +2,7 @@ package io.github.vvcogo;
 
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.AtomicLongBitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.BitSet;
+import io.github.vvcogo.longfastbloomfilter.framework.bitset.LongBitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfiguration;
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfigurationLoader;
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.InvalidConfigurationException;
@@ -11,6 +12,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -38,7 +40,7 @@ public class Main {
             System.exit(-1);
         }
         LOGGER.info(() -> "Reading inserts file...");
-        List<String> inserts = FileReader.readFile(args[0]);
+        String[] inserts = FileReader.readFile(args[0]).toArray(new String[0]);
         LOGGER.info(() -> "Loading configuration...");
         BloomFilterConfiguration<String> config = loadConfiguration(args[1]);
         LOGGER.info(() -> "Configuration loaded: " + config.toString());
@@ -53,29 +55,32 @@ public class Main {
             testSerializer(exec, inserts, numThreads, config);
             testBitset(exec, inserts, numThreads, config);
         }
+        exec.shutdown();
     }
 
-    private static void testSerializer(ExecutorService exec, List<String> inserts, int numThreads, BloomFilterConfiguration<String> config) throws Exception {
-        Consumer<String> serializerConsumer = (s) -> config.getSerializer().serialize(s);
+    private static void testSerializer(ExecutorService exec, String[] inserts, int numThreads, BloomFilterConfiguration<String> config) throws Exception {
+        Consumer<String> serializerConsumer = s -> config.getSerializer().serialize(s);
         List<Runnable> serializerTasks = createInvokeList(inserts, numThreads, serializerConsumer);
         executeTasks(exec, inserts, serializerTasks, "Finished serializing %s strings in %s ms");
     }
 
-    private static void testHashing(ExecutorService exec, List<String> inserts, int numThreads, BloomFilterConfiguration<String> config) throws Exception {
+    private static void testHashing(ExecutorService exec, String[] inserts, int numThreads, BloomFilterConfiguration<String> config) throws Exception {
         int k = config.getNumberOfHashFunctions();
         long m = config.getBitSetSize();
-        List<byte[]> bytesList = inserts.stream().map(String::getBytes).toList();
+        byte[][] bytesArray = new byte[inserts.length][];
+        for (int i = 0; i < bytesArray.length; i++) {
+            bytesArray[i] = inserts[i].getBytes();
+        }
         Consumer<byte[]> hashingConsumer = bytes -> config.getHashFunction().hash(bytes, k, m);
-        List<Runnable> hashingTasks = createInvokeList(bytesList, numThreads, hashingConsumer);
+        List<Runnable> hashingTasks = createInvokeList(bytesArray, numThreads, hashingConsumer);
         executeTasks(exec, inserts, hashingTasks, "Finished hashing %s byte arrays in %s ms");
     }
 
-    private static void testBitset(ExecutorService exec, List<String> inserts, int numThreads, BloomFilterConfiguration<String> config) throws Exception {
-        BitSet bitset = new AtomicLongBitSet(config.getBitSetSize());
-        List<byte[]> bytesList = inserts.stream().map(String::getBytes).toList();
-        List<long[]> indexes = new ArrayList<>();
-        for (byte[] bytes : bytesList) {
-            ByteBuffer buffer = getHashes(bytes, config);
+    private static void testBitset(ExecutorService exec, String[] inserts, int numThreads, BloomFilterConfiguration<String> config) throws Exception {
+        BitSet bitset = new LongBitSet(config.getBitSetSize());
+        long[][] indexes = new long[inserts.length][];
+        for (int i = 0; i < indexes.length; i++) {
+            ByteBuffer buffer = getHashes(inserts[i].getBytes(), config);
             long[] array = new long[buffer.remaining() / Long.BYTES];
             int j = 0;
             while (buffer.remaining() > 7) {
@@ -83,7 +88,7 @@ public class Main {
                 array[j] = index;
                 j++;
             }
-            indexes.add(array);
+            indexes[i] = array;
         }
         Consumer<long[]> setConsumer = longArr -> {
             for(long index : longArr)
@@ -100,22 +105,22 @@ public class Main {
         return config.getHashFunction().hash(bytes, numbHashes, size);
     }
 
-    private static <T> List<Runnable> createInvokeList(List<T> dataList, int numbThreads, Consumer<T> consumer) {
+    private static <T> List<Runnable> createInvokeList(T[] dataArray, int numbThreads, Consumer<T> consumer) {
         List<Runnable> result = new ArrayList<>();
-        int size = dataList.size();
+        int size = dataArray.length;
         int amountPerThread = size / numbThreads;
         for (int i = 0; i < numbThreads; i++) {
             int threadIndex = i;
             result.add(() -> {
                 for (int j = threadIndex * amountPerThread; j < amountPerThread * (threadIndex + 1); j++) {
-                    consumer.accept(dataList.get(j));
+                    consumer.accept(dataArray[j]);
                 }
             });
         }
         return result;
     }
 
-    private static void executeTasks(ExecutorService exec, List<String> elementList, List<Runnable> callableList,
+    private static void executeTasks(ExecutorService exec, String[] elementList, List<Runnable> callableList,
                                      String message) throws InterruptedException, ExecutionException {
         List<Future<?>> tasks = new ArrayList<>(callableList.size());
         long start = System.currentTimeMillis();
@@ -127,9 +132,9 @@ public class Main {
         }
         long elapsed = System.currentTimeMillis() - start;
         LOGGER.info("");
-        LOGGER.info(() -> String.format(message, elementList.size(), elapsed));
-        throughput(elapsed, elementList.size());
-        latency(elapsed, elementList.size());
+        LOGGER.info(() -> String.format(message, elementList.length, elapsed));
+        throughput(elapsed, elementList.length);
+        latency(elapsed, elementList.length);
         LOGGER.info("");
     }
 
