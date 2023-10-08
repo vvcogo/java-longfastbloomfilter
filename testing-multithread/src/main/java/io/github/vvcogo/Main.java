@@ -2,7 +2,6 @@ package io.github.vvcogo;
 
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.AtomicLongBitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.BitSet;
-import io.github.vvcogo.longfastbloomfilter.framework.bitset.LongBitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfiguration;
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfigurationLoader;
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.InvalidConfigurationException;
@@ -12,7 +11,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
@@ -54,6 +52,7 @@ public class Main {
             testHashing(exec, inserts, numThreads, config);
             testSerializer(exec, inserts, numThreads, config);
             testBitset(exec, inserts, numThreads, config);
+            testBitset(exec, inserts, numThreads, config);
         }
         exec.shutdown();
     }
@@ -77,7 +76,7 @@ public class Main {
     }
 
     private static void testBitset(ExecutorService exec, String[] inserts, int numThreads, BloomFilterConfiguration<String> config) throws Exception {
-        BitSet bitset = new LongBitSet(config.getBitSetSize());
+        BitSet bitset = new AtomicLongBitSet(config.getBitSetSize());
         long[][] indexes = new long[inserts.length][];
         for (int i = 0; i < indexes.length; i++) {
             ByteBuffer buffer = getHashes(inserts[i].getBytes(), config);
