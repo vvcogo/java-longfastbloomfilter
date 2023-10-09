@@ -2,6 +2,7 @@ package io.github.vvcogo;
 
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.AtomicLongBitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.BitSet;
+import io.github.vvcogo.longfastbloomfilter.framework.bitset.LongBitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfiguration;
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfigurationLoader;
 import io.github.vvcogo.longfastbloomfilter.framework.configuration.InvalidConfigurationException;
@@ -51,8 +52,9 @@ public class Main {
         for (int i = 0; i < numExecutions; i++) {
             testHashing(exec, inserts, numThreads, config);
             testSerializer(exec, inserts, numThreads, config);
-            testBitset(exec, inserts, numThreads, config);
-            testBitset(exec, inserts, numThreads, config);
+            testBitset2(exec, inserts, numThreads, config);
+//            testBitset(exec, inserts, numThreads, config);
+//            testBitset(exec, inserts, numThreads, config);
         }
         exec.shutdown();
     }
@@ -92,6 +94,26 @@ public class Main {
         Consumer<long[]> setConsumer = longArr -> {
             for(long index : longArr)
                 bitset.set(index);
+        };
+        List<Runnable> setTasks = createInvokeList(indexes, numThreads, setConsumer);
+        executeTasks(exec, inserts, setTasks, "Finished setting %s elements in %s ms");
+    }
+
+    private static void testBitset2(ExecutorService exec, String[] inserts, int numThreads, BloomFilterConfiguration<String> config) throws Exception {
+        BitSet bitset = new TestingBitset(config.getBitSetSize());
+        long[][] indexes = new long[inserts.length][];
+        int k = config.getNumberOfHashFunctions();
+        int index = 0;
+        for (int i = 0; i < indexes.length; i++) {
+            indexes[i] = new long[k];
+            for (int j = 0; j < k; j++) {
+                indexes[i][j] = (index & Long.MAX_VALUE) % config.getBitSetSize();
+                index += 64;
+            }
+        }
+        Consumer<long[]> setConsumer = longArr -> {
+            for(long bitSetIndex : longArr)
+                bitset.set(bitSetIndex);
         };
         List<Runnable> setTasks = createInvokeList(indexes, numThreads, setConsumer);
         executeTasks(exec, inserts, setTasks, "Finished setting %s elements in %s ms");
