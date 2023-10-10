@@ -52,8 +52,8 @@ public class Main {
         for (int i = 0; i < numExecutions; i++) {
             //testHashing(exec, inserts, numThreads, config);
             //testSerializer(exec, inserts, numThreads, config);
-            testBitset2(exec, inserts, numThreads, config);
-//            testBitset(exec, inserts, numThreads, config);
+           // testBitset2(exec, inserts, numThreads, config);
+            testBitset(exec, inserts, numThreads, config);
 //            testBitset(exec, inserts, numThreads, config);
         }
         exec.shutdown();
