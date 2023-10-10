@@ -1,30 +1,24 @@
 package io.github.vvcogo;
 
-import io.github.vvcogo.longfastbloomfilter.framework.bitset.AtomicLongBitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.BitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.LongBitSet;
-import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfiguration;
-import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfigurationLoader;
-import io.github.vvcogo.longfastbloomfilter.framework.configuration.InvalidConfigurationException;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
-import java.util.concurrent.ExecutionException;
+import java.util.Objects;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.function.Consumer;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
 
 public class Main {
 
     private static final Logger LOGGER = Logger.getLogger("testing-multithread");
+    private static final int AMOUNT_OF_GC_CALLS = 20;
+    private static final int BITSET_SIZE = 13_000_000;
+    private static final int NUM_HASH_FUNCTIONS = 19;
+    private static final int WARMUP_COUNT = 5;
 
     static {
         LOGGER.setUseParentHandlers(false);
@@ -33,158 +27,89 @@ public class Main {
         LOGGER.addHandler(handler);
     }
 
+    public static void callGC() {
+        for (int i = 0; i < AMOUNT_OF_GC_CALLS; i++) {
+            System.gc();
+            System.runFinalization();
+        }
+    }
+
     public static void main(String[] args) throws Exception {
-        if (args.length != 4) {
-            LOGGER.severe(() -> "Usage ./testing-multithread <insert file> <config file> <num threads> <num executions>");
+        if (args.length != 2) {
+            LOGGER.severe(() -> "Usage ./testing-multithread <num threads> <num executions>");
             System.exit(-1);
         }
-        LOGGER.info(() -> "Reading inserts file...");
-        String[] inserts = FileReader.readFile(args[0]).toArray(new String[0]);
-        LOGGER.info(() -> "Loading configuration...");
-        BloomFilterConfiguration<String> config = loadConfiguration(args[1]);
-        LOGGER.info(() -> "Configuration loaded: " + config.toString());
-
-        int numThreads = Integer.parseInt(args[2]);
-        int numExecutions = Integer.parseInt(args[3]);
+        int numThreads = Integer.parseInt(args[0]);
+        int numExecutions = Integer.parseInt(args[1]);
         ExecutorService exec = Executors.newFixedThreadPool(numThreads);
         LOGGER.info(() -> "Created thread poool with " + numThreads + " threads!");
-
+        for (int i = 0; i < WARMUP_COUNT; i++) {
+            LOGGER.info("Running warmup #" + (i + 1));
+            double elapsed = runBenchmark(exec, numThreads);
+            LOGGER.info(String.format("Warmup #%s finished in %s ms", i + 1, elapsed));
+        }
         for (int i = 0; i < numExecutions; i++) {
-            //testHashing(exec, inserts, numThreads, config);
-            //testSerializer(exec, inserts, numThreads, config);
-            testBitset2(exec, inserts, numThreads, config);
-//            testBitset(exec, inserts, numThreads, config);
-//            testBitset(exec, inserts, numThreads, config);
+            callGC();
+            double elapsed = runBenchmark(exec, numThreads);
+            LOGGER.info(String.format("Executed %s (%s sets executed) inserts in %s ms", BITSET_SIZE, BITSET_SIZE * NUM_HASH_FUNCTIONS, elapsed));
         }
         exec.shutdown();
     }
 
-    private static void testSerializer(ExecutorService exec, String[] inserts, int numThreads, BloomFilterConfiguration<String> config) throws Exception {
-        Consumer<String> serializerConsumer = s -> config.getSerializer().serialize(s);
-        List<Runnable> serializerTasks = createInvokeList(inserts, numThreads, serializerConsumer);
-        executeTasks(exec, inserts, serializerTasks, "Finished serializing %s strings in %s ms");
-    }
-
-    private static void testHashing(ExecutorService exec, String[] inserts, int numThreads, BloomFilterConfiguration<String> config) throws Exception {
-        int k = config.getNumberOfHashFunctions();
-        long m = config.getBitSetSize();
-        byte[][] bytesArray = new byte[inserts.length][];
-        for (int i = 0; i < bytesArray.length; i++) {
-            bytesArray[i] = inserts[i].getBytes();
-        }
-        Consumer<byte[]> hashingConsumer = bytes -> config.getHashFunction().hash(bytes, k, m);
-        List<Runnable> hashingTasks = createInvokeList(bytesArray, numThreads, hashingConsumer);
-        executeTasks(exec, inserts, hashingTasks, "Finished hashing %s byte arrays in %s ms");
-    }
-
-    private static void testBitset(ExecutorService exec, String[] inserts, int numThreads, BloomFilterConfiguration<String> config) throws Exception {
-        BitSet bitset = new AtomicLongBitSet(config.getBitSetSize());
-        long[][] indexes = new long[inserts.length][];
-        for (int i = 0; i < indexes.length; i++) {
-            ByteBuffer buffer = getHashes(inserts[i].getBytes(), config);
-            long[] array = new long[buffer.remaining() / Long.BYTES];
-            int j = 0;
-            while (buffer.remaining() > 7) {
-                long index = buffer.getLong();
-                array[j] = index;
-                j++;
-            }
-            indexes[i] = array;
-        }
-        Consumer<long[]> setConsumer = longArr -> {
-            for(long index : longArr)
-                bitset.set(index);
-        };
-        List<Runnable> setTasks = createInvokeList(indexes, numThreads, setConsumer);
-        executeTasks(exec, inserts, setTasks, "Finished setting %s elements in %s ms");
-    }
-
-    private static void testBitset2(ExecutorService exec, String[] inserts, int numThreads, BloomFilterConfiguration<String> config) throws Exception {
-        BitSet bitset = new LongBitSet(config.getBitSetSize());
-        long[][] indexes = new long[inserts.length][];
-        int k = config.getNumberOfHashFunctions();
-        int index = 0;
-        for (int i = 0; i < indexes.length; i++) {
-            indexes[i] = new long[k];
-            for (int j = 0; j < k; j++) {
-                indexes[i][j] = (index & Long.MAX_VALUE) % config.getBitSetSize();
+    private static double runBenchmark(ExecutorService exec, int numThreads) throws Exception {
+        BitSet bitSet = new LongBitSet(BITSET_SIZE);
+        long[][] indexes = new long[BITSET_SIZE][];
+        long index = 0;
+        for (int i = 0; i < BITSET_SIZE; i++) {
+            indexes[i] = new long[NUM_HASH_FUNCTIONS];
+            for (int j = 0; j < NUM_HASH_FUNCTIONS; j++) {
+                indexes[i][j] = (index & Long.MAX_VALUE) % BITSET_SIZE;
                 index += 64;
             }
         }
-        Consumer<long[]> setConsumer = longArr -> {
-            for(long bitSetIndex : longArr)
-                bitset.set(bitSetIndex);
-        };
-        List<Runnable> setTasks = createInvokeList(indexes, numThreads, setConsumer);
-        executeTasks(exec, inserts, setTasks, "Finished setting %s elements in %s ms");
-    }
-
-    //--------------------------------------------UTILS-------------------------------------------------------------------------
-    private static ByteBuffer getHashes(byte[] bytes, BloomFilterConfiguration<String> config) {
-        long size = config.getBitSetSize();
-        int numbHashes = config.getNumberOfHashFunctions();
-        return config.getHashFunction().hash(bytes, numbHashes, size);
-    }
-
-    private static <T> List<Runnable> createInvokeList(T[] dataArray, int numbThreads, Consumer<T> consumer) {
-        List<Runnable> result = new ArrayList<>();
-        int size = dataArray.length;
-        int amountPerThread = size / numbThreads;
-        for (int i = 0; i < numbThreads; i++) {
-            int threadIndex = i;
-            result.add(() -> {
-                for (int j = threadIndex * amountPerThread; j < amountPerThread * (threadIndex + 1); j++) {
-                    consumer.accept(dataArray[j]);
+        int amountPerThread = BITSET_SIZE / numThreads;
+        List<Callable<Object>> tasks = new ArrayList<>();
+        for (int i = 0; i < numThreads; i++) {
+            final int threadIndex = i;
+            tasks.add(Executors.callable(() -> {
+                for (int j = threadIndex * amountPerThread; j < (threadIndex + 1) * amountPerThread; j++) {
+                    for (int k = 0; k < indexes[j].length; k++) {
+                        bitSet.set(indexes[j][k]);
+                    }
                 }
-            });
+            }));
         }
-        return result;
+        List<WorkerThread> workers = new ArrayList<>();
+        for (Callable<Object> task : tasks) {
+            workers.add(new WorkerThread(task));
+        }
+
+        long start = System.nanoTime();
+        for (WorkerThread worker : workers) {
+            worker.start();
+        }
+        for (WorkerThread worker : workers) {
+            worker.join();
+        }
+        long elapsed = System.nanoTime() - start;
+        return elapsed / 1000000.0;
     }
 
-    private static void executeTasks(ExecutorService exec, String[] elementList, List<Runnable> callableList,
-                                     String message) throws InterruptedException, ExecutionException {
-        List<Future<?>> tasks = new ArrayList<>(callableList.size());
-        long start = System.currentTimeMillis();
-        for (Runnable task : callableList) {
-            tasks.add(exec.submit(task));
-        }
-        for (Future<?> task : tasks) {
-            task.get();
-        }
-        long elapsed = System.currentTimeMillis() - start;
-        LOGGER.info("");
-        LOGGER.info(() -> String.format(message, elementList.length, elapsed));
-        throughput(elapsed, elementList.length);
-        latency(elapsed, elementList.length);
-        LOGGER.info("");
-    }
+    private static class WorkerThread extends Thread {
 
-    private static void throughput(long elapsed, long numElems) {
-        double th = numElems / (elapsed / 1000.0);
-        LOGGER.info(() -> " > Throughput: " + th + " e/s.");
-    }
+        private final Callable<?> task;
 
-    private static void latency(long elapsed, long numElems) {
-        double latency = ((double) elapsed) / numElems;
-        LOGGER.info(() -> " > Latency: " + latency + " ms.");
-    }
-
-    private static BloomFilterConfiguration<String> loadConfiguration(String configFilePath) {
-        try (FileInputStream inputStream = new FileInputStream(configFilePath)) {
-            Properties props = new Properties();
-            props.load(inputStream);
-            BloomFilterConfigurationLoader<String> loader = BloomFilterConfigurationLoader.defaultLoader();
-            return loader.loadConfig(props);
-        } catch (FileNotFoundException e) {
-            LOGGER.severe(() -> "Config file not found!");
-            System.exit(1);
-        } catch (IOException e) {
-            LOGGER.severe(() -> "Failed to read config file!");
-            System.exit(1);
-        } catch (InvalidConfigurationException e) {
-            LOGGER.severe(() -> "Configuration was invalid! " + e.getMessage());
-            System.exit(1);
+        public WorkerThread(Callable<?> task) {
+            this.task = task;
         }
-        return null;
+
+        @Override
+        public void run() {
+            try {
+                this.task.call();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
