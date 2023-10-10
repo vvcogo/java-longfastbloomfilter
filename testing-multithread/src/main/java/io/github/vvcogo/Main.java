@@ -49,17 +49,9 @@ public class Main {
             LOGGER.info(String.format("Warmup #%s finished in %s ms", i + 1, elapsed));
         }
         for (int i = 0; i < numExecutions; i++) {
-<<<<<<< HEAD
-            //testHashing(exec, inserts, numThreads, config);
-            //testSerializer(exec, inserts, numThreads, config);
-           // testBitset2(exec, inserts, numThreads, config);
-            testBitset(exec, inserts, numThreads, config);
-//            testBitset(exec, inserts, numThreads, config);
-=======
             callGC();
             double elapsed = runBenchmark(exec, numThreads);
             LOGGER.info(String.format("Executed %s (%s sets executed) inserts in %s ms", BITSET_SIZE, BITSET_SIZE * NUM_HASH_FUNCTIONS, elapsed));
->>>>>>> 3e3977b4772e90df78b611e785333f84db3639dc
         }
         exec.shutdown();
     }
