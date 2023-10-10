@@ -13,11 +13,12 @@ public class AtomicLongBitSet extends AbstractLongBitSet {
     @Override
     protected void set(int arrayIndex, int elementIndex, long bitIndex) {
         long bitMask = 1L << bitIndex;
-        boolean set = false;
-        while (!set) {
-            long expected = this.bits[arrayIndex].get(elementIndex);
-            set = this.bits[arrayIndex].compareAndSet(elementIndex, expected, expected | bitMask);
-        }
+        long value;
+        do {
+            value = this.bits[arrayIndex].get(elementIndex);
+            if ((value & bitMask) != 0L)
+                return;
+        } while(!this.bits[arrayIndex].compareAndSet(elementIndex, value, value | bitMask));
     }
 
     @Override
