@@ -50,8 +50,8 @@ public class Main {
         LOGGER.info(() -> "Created thread poool with " + numThreads + " threads!");
 
         for (int i = 0; i < numExecutions; i++) {
-            testHashing(exec, inserts, numThreads, config);
-            testSerializer(exec, inserts, numThreads, config);
+            //testHashing(exec, inserts, numThreads, config);
+            //testSerializer(exec, inserts, numThreads, config);
             testBitset2(exec, inserts, numThreads, config);
 //            testBitset(exec, inserts, numThreads, config);
 //            testBitset(exec, inserts, numThreads, config);
@@ -100,7 +100,7 @@ public class Main {
     }
 
     private static void testBitset2(ExecutorService exec, String[] inserts, int numThreads, BloomFilterConfiguration<String> config) throws Exception {
-        BitSet bitset = new TestingBitset(config.getBitSetSize());
+        BitSet bitset = new LongBitSet(config.getBitSetSize());
         long[][] indexes = new long[inserts.length][];
         int k = config.getNumberOfHashFunctions();
         int index = 0;
