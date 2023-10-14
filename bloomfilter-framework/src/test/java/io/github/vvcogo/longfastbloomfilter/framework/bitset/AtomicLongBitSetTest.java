@@ -23,7 +23,6 @@ class AtomicLongBitSetTest {
     @Test
     void testConstructor() {
         assertEquals(INITIAL_SIZE, this.bitSet.getSize());
-        assertTrue(this.bitSet.isEmpty());
     }
 
     @Test
@@ -31,26 +30,9 @@ class AtomicLongBitSetTest {
         this.bitSet.set(1L);
         this.bitSet.set(2L);
         this.bitSet.set(53L);
-        assertFalse(this.bitSet.isEmpty());
         assertTrue(this.bitSet.get(1L));
         assertTrue(this.bitSet.get(2L));
         assertTrue(this.bitSet.get(53L));
-    }
-
-    @Test
-    void testClear() {
-        this.bitSet.set(1L);
-        this.bitSet.set(2L);
-        this.bitSet.set(53L);
-        this.bitSet.clear();
-        assertTrue(this.bitSet.isEmpty());
-    }
-
-    @Test
-    void testIsEmpty() {
-        assertTrue(this.bitSet.isEmpty());
-        this.bitSet.set(1L);
-        assertFalse(this.bitSet.isEmpty());
     }
 
     @Test
@@ -101,22 +83,8 @@ class AtomicLongBitSetTest {
     }
 
     @Test
-    void testCopy() {
-        AtomicLongBitSet copy1 = this.bitSet.copy();
-        assertTrue(copy1.isEmpty());
-        assertEquals(this.bitSet, copy1);
-        this.bitSet.set(1L);
-        assertNotEquals(this.bitSet, copy1);
-        AtomicLongBitSet copy2 = this.bitSet.copy();
-        assertFalse(copy2.isEmpty());
-        assertEquals(this.bitSet, copy2);
-        assertNotEquals(copy1, copy2);
-    }
-
-    @Test
     void testInitializeBitArray() throws NoSuchFieldException, IllegalAccessException {
-        this.bitSet.set(0L);
-        this.bitSet.initializeBitArray(1, 1);
+        this.bitSet.initializeBitArray(1);
         Field field = this.bitSet.getClass().getDeclaredField("bits");
         field.setAccessible(true);
         AtomicLongArray[] bits = (AtomicLongArray[]) field.get(this.bitSet);
@@ -144,7 +112,9 @@ class AtomicLongBitSetTest {
     void testGetArrayIndex() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = AbstractLongBitSet.class.getDeclaredMethod("getArrayIndex", long.class);
         method.setAccessible(true);
-        int actual = (int) method.invoke(this.bitSet, Integer.MAX_VALUE * 64L);
+        long index = Integer.MAX_VALUE * 64L;
+        System.out.println(" > " + index);
+        int actual = (int) method.invoke(this.bitSet, index);
         assertEquals(1, actual);
         actual = (int) method.invoke(this.bitSet,0L);
         assertEquals(0, actual);
@@ -153,8 +123,8 @@ class AtomicLongBitSetTest {
     }
 
     @Test
-    void testElementIndex() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-        Method method = AbstractLongBitSet.class.getDeclaredMethod("getElementIndex", long.class);
+    void testLongIndex() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        Method method = AbstractLongBitSet.class.getDeclaredMethod("getLongIndex", long.class);
         method.setAccessible(true);
         int actual = (int) method.invoke(this.bitSet, 63L);
         assertEquals(0, actual);
@@ -168,11 +138,11 @@ class AtomicLongBitSetTest {
     void testGetBitIndex() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Method method = AbstractLongBitSet.class.getDeclaredMethod("getBitIndex", long.class);
         method.setAccessible(true);
-        long actual = (long) method.invoke(this.bitSet, 64L);
+        int actual = (int) method.invoke(this.bitSet, 64);
         assertEquals(0, actual);
-        actual = (long) method.invoke(this.bitSet,65L);
+        actual = (int) method.invoke(this.bitSet,65);
         assertEquals(1, actual);
-        actual = (long) method.invoke(this.bitSet, 2L);
+        actual = (int) method.invoke(this.bitSet, 2);
         assertEquals(2, actual);
     }
 }

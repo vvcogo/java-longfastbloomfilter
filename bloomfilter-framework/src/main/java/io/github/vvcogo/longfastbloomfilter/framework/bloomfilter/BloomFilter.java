@@ -28,9 +28,5 @@ public interface BloomFilter<T> extends Serializable {
 
     void clear();
 
-    boolean isEmpty();
-
     BloomFilterConfiguration<? super T> getConfiguration();
-
-    BloomFilter<T> copy();
 }

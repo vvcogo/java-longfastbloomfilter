@@ -55,19 +55,7 @@ public class OrestesBloomFilterAdapter<T> implements BloomFilter<T> {
     }
 
     @Override
-    public boolean isEmpty() {
-        return this.bloomFilter.isEmpty();
-    }
-
-    @Override
     public BloomFilterConfiguration<? super T> getConfiguration() {
         return this.config;
-    }
-
-    @Override
-    public BloomFilter<T> copy() {
-        OrestesBloomFilterAdapter<T> copy = new OrestesBloomFilterAdapter<>(this.config);
-        copy.bloomFilter = this.bloomFilter.clone();
-        return copy;
     }
 }

@@ -38,17 +38,7 @@ public class GuavaBloomFilterAdapter<T> implements BloomFilter<T> {
     }
 
     @Override
-    public boolean isEmpty() {
-        return isEmpty;
-    }
-
-    @Override
     public BloomFilterConfiguration<? super T> getConfiguration() {
         return this.config;
-    }
-
-    @Override
-    public BloomFilter<T> copy() {
-        return new GuavaBloomFilterAdapter<>(this);
     }
 }

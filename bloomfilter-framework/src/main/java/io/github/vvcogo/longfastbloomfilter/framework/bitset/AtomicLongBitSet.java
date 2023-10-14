@@ -11,7 +11,7 @@ public class AtomicLongBitSet extends AbstractLongBitSet {
     }
 
     @Override
-    protected void set(int arrayIndex, int elementIndex, long bitIndex) {
+    protected void set(int arrayIndex, int elementIndex, int bitIndex) {
         long bitMask = 1L << bitIndex;
         long value;
         do {
@@ -22,26 +22,16 @@ public class AtomicLongBitSet extends AbstractLongBitSet {
     }
 
     @Override
-    protected boolean get(int arrayIndex, int elementIndex, long bitIndex) {
+    protected boolean get(int arrayIndex, int elementIndex, int bitIndex) {
         long bitMask = 1L << bitIndex;
         long value = this.bits[arrayIndex].get(elementIndex);
         return (value & bitMask) != 0L;
     }
 
     @Override
-    public AtomicLongBitSet copy() {
-        AtomicLongBitSet copy = new AtomicLongBitSet(getSize());
-        for (int i = 0; i < this.bits.length; i++) {
-            for (int j = 0; j < this.bits[i].length(); j++) {
-                copy.bits[i].set(j, this.bits[i].get(j));
-            }
-        }
-        copy.setEmpty(isEmpty());
-        return copy;
-    }
-
-    @Override
-    protected void initializeBitArray(int numberOfArrays, int lastArraySize) {
+    protected void initializeBitArray(long size) {
+        int numberOfArrays = getArrayIndex(size) + 1;
+        int lastArraySize = getLongIndex(size) + 1;
         this.bits = new AtomicLongArray[numberOfArrays];
         for (int i = 0; i < numberOfArrays - 1; i++) {
             this.bits[i] = new AtomicLongArray(Integer.MAX_VALUE);

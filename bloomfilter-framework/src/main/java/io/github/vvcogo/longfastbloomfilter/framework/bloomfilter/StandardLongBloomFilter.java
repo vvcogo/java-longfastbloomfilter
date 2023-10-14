@@ -10,7 +10,7 @@ import java.util.Objects;
 public class StandardLongBloomFilter<T> implements BloomFilter<T> {
 
     private final BloomFilterConfiguration<? super T> configuration;
-    private BitSet bitSet;
+    private final BitSet bitSet;
 
     public StandardLongBloomFilter(BloomFilterConfiguration<? super T> config) {
         this.configuration = config;
@@ -45,20 +45,8 @@ public class StandardLongBloomFilter<T> implements BloomFilter<T> {
     }
 
     @Override
-    public boolean isEmpty() {
-        return this.bitSet.isEmpty();
-    }
-
-    @Override
     public BloomFilterConfiguration<? super T> getConfiguration() {
         return this.configuration;
-    }
-
-    @Override
-    public BloomFilter<T> copy() {
-        StandardLongBloomFilter<T> copy = new StandardLongBloomFilter<>(this.configuration);
-        copy.bitSet = this.bitSet.copy();
-        return copy;
     }
 
     @Override

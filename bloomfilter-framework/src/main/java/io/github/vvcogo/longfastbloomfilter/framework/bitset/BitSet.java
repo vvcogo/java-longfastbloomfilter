@@ -10,9 +10,5 @@ public interface BitSet extends Serializable {
 
     void clear();
 
-    boolean isEmpty();
-
     long getSize();
-
-    BitSet copy();
 }

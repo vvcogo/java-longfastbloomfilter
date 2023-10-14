@@ -15,7 +15,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.Logger;
@@ -53,6 +57,8 @@ public class TestApplicationV2 {
         BloomFilterConfiguration<String> configuration = loadConfiguration(configFile);
         LOGGER.info(configuration::toString);
 
+        ExecutorService exec = Executors.newFixedThreadPool(numThreads);
+
         LOGGER.info(() -> "Reading inserts file...");
         List<String> inserts = FileReader.readFile(insertFile);
         LOGGER.info(() -> "Reading queries file...");
@@ -62,8 +68,8 @@ public class TestApplicationV2 {
         for (int i = 1; i <= WARM_UP; i++) {
             LOGGER.info("Executing warmup #" + i);
             callGC();
-            long elapsed = executeTasks(inserts, numThreads, bloomFilter::add);
-            elapsed += executeTasks(queries, numThreads, bloomFilter::mightContains);
+            long elapsed = executeTasks(exec, inserts, numThreads, bloomFilter::add);
+            elapsed += executeTasks(exec, queries, numThreads, bloomFilter::mightContains);
             double elapsedMillis = elapsed / 1000000.0;
             LOGGER.info(String.format("Warmup %s finished in %s ms", i, elapsedMillis));
         }
@@ -72,19 +78,20 @@ public class TestApplicationV2 {
             LOGGER.info("Execution #" + i + ": ");
             // Inserts
             callGC();
-            long elapsedNano = executeTasks(inserts, numThreads, bloomFilter::add);
+            long elapsedNano = executeTasks(exec, inserts, numThreads, bloomFilter::add);
             double elapsedMillis = elapsedNano / 1000000.0;
             LOGGER.info(() -> String.format("Finished inserting %s elements in %s ms", inserts.size(), elapsedMillis));
             throughput(elapsedMillis, inserts.size());
             latency(elapsedMillis, inserts.size());
             // Queries
             callGC();
-            long elapsedNanoQueries = executeTasks(queries, numThreads, bloomFilter::mightContains);
+            long elapsedNanoQueries = executeTasks(exec, queries, numThreads, bloomFilter::mightContains);
             double elapsedMillisQueries = elapsedNanoQueries / 1000000.0;
             LOGGER.info(() -> String.format("Finished querying %s elements in %s ms", queries.size(), elapsedMillisQueries));
             throughput(elapsedMillisQueries, queries.size());
             latency(elapsedMillisQueries, queries.size());
         }
+        exec.shutdown();
     }
 
     public static void callGC() {
@@ -94,28 +101,19 @@ public class TestApplicationV2 {
         }
     }
 
-    private static <T> long executeTasks(List<T> data, int numThreads, Consumer<T> consumer) throws InterruptedException {
+    private static <T> long executeTasks(ExecutorService exec, List<T> data, int numThreads, Consumer<T> consumer) throws InterruptedException {
         final int amountPerThread = data.size() / numThreads;
-        List<Runnable> tasks = new ArrayList<>(numThreads);
+        List<Callable<Object>> tasks = new ArrayList<>(numThreads);
         for (int i = 0; i < numThreads; i++) {
             final int threadIndex = i;
-            tasks.add(() -> {
+            tasks.add(Executors.callable(() -> {
                 for (int j = threadIndex * amountPerThread; j < (threadIndex + 1) * amountPerThread; j++) {
                     consumer.accept(data.get(j));
                 }
-            });
-        }
-        List<Thread> workers = new ArrayList<>(numThreads);
-        for (Runnable task : tasks) {
-            workers.add(new Thread(task));
+            }));
         }
         long start = System.nanoTime();
-        for (Thread worker : workers) {
-            worker.start();
-        }
-        for (Thread worker : workers) {
-            worker.join();
-        }
+        exec.invokeAll(tasks);
         return System.nanoTime() - start;
     }
 
