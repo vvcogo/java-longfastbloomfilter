@@ -15,14 +15,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
-import java.util.logging.ConsoleHandler;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 public class TestApplicationV2 {
 
@@ -34,15 +32,20 @@ public class TestApplicationV2 {
     static {
         LOGGER.setUseParentHandlers(false);
         ConsoleHandler handler = new ConsoleHandler();
-        handler.setFormatter(new LogsFormat());
+        handler.setFormatter(LogsFormat.CONSOlE);
         LOGGER.addHandler(handler);
     }
 
     // input query config th
     public static void main(String[] args) throws Exception {
         if (args.length < 5) {
-            System.err.println("Execute with 5 arguments! <insert file> <query file> <config file> <num threads> <num executions>");
+            System.err.println("Execute with 5 arguments! <insert file> <query file> <config file> <num threads> <num executions> [logs file]");
             System.exit(-1);
+        }
+        if (args.length == 6) {
+            FileHandler fileHandler = new FileHandler(args[5]);
+            fileHandler.setFormatter(LogsFormat.FILE);
+            LOGGER.addHandler(fileHandler);
         }
         String insertFile = args[0];
         String queryFile = args[1];
@@ -58,6 +61,7 @@ public class TestApplicationV2 {
         LOGGER.info(configuration::toString);
 
         ExecutorService exec = Executors.newFixedThreadPool(numThreads);
+        LOGGER.info(() -> String.format("Created thread pool with %s threads", numThreads));
 
         LOGGER.info(() -> "Reading inserts file...");
         List<String> inserts = FileReader.readFile(insertFile);
