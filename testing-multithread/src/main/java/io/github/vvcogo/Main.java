@@ -4,9 +4,22 @@ import com.google.common.hash.GuavaBitsetAdapter;
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.AtomicLongBitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.BitSet;
 import io.github.vvcogo.longfastbloomfilter.framework.bitset.LongBitSet;
+import io.github.vvcogo.longfastbloomfilter.framework.bloomfilter.BloomFilter;
+import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfiguration;
+import io.github.vvcogo.longfastbloomfilter.framework.configuration.BloomFilterConfigurationLoader;
+import io.github.vvcogo.longfastbloomfilter.framework.configuration.InvalidConfigurationException;
+import io.github.vvcogo.longfastbloomfilter.framework.extensions.BloomFilterExtension;
+import io.github.vvcogo.longfastbloomfilter.framework.extensions.ExtensionLoadException;
+import io.github.vvcogo.longfastbloomfilter.framework.extensions.JavaExtensionLoader;
+import io.github.vvcogo.longfastbloomfilter.framework.factory.BloomFilterCreator;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.ConsoleHandler;
@@ -14,102 +27,69 @@ import java.util.logging.Logger;
 
 public class Main {
 
-    private static final Logger LOGGER = Logger.getLogger("testing-multithread");
-    private static final int AMOUNT_OF_GC_CALLS = 20;
-    private static final int BITSET_SIZE = 7_000_000;
-    private static final int NUM_HASH_FUNCTIONS = 19;
-    private static final int WARMUP_COUNT = 5;
+    private static final File EXTENSIONS_DIRECTORY = new File("extensions/");
+    private static final Logger LOGGER = Logger.getLogger("orestes-testing");
 
-    static {
-        LOGGER.setUseParentHandlers(false);
-        ConsoleHandler handler = new ConsoleHandler();
-        handler.setFormatter(new LogsFormat());
-        LOGGER.addHandler(handler);
-    }
+    public static void main(String[] args) {
+        JavaExtensionLoader extensionLoader = new JavaExtensionLoader();
+        loadExtensions(extensionLoader);
 
-    public static void callGC() {
-        for (int i = 0; i < AMOUNT_OF_GC_CALLS; i++) {
-            System.gc();
-            System.runFinalization();
-        }
-    }
 
-    public static void main(String[] args) throws Exception {
-        if (args.length != 3) {
-            LOGGER.severe(() -> "Usage ./testing-multithread <num threads> <num executions> <bf type>");
-            System.exit(-1);
-        }
-        int numThreads = Integer.parseInt(args[0]);
-        int numExecutions = Integer.parseInt(args[1]);
-        String bfType = args[2];
-        BitSet bitSet;
-        if (bfType.equals("guava")) {
-            bitSet = new GuavaBitsetAdapter(BITSET_SIZE);
-        } else if (bfType.equals("long")) {
-            bitSet = new LongBitSet(BITSET_SIZE);
-        } else if (bfType.equals("atomic")) {
-            bitSet = new AtomicLongBitSet(BITSET_SIZE);
-        } else {
-            throw new Exception();
-        }
-        LOGGER.info(() -> "Created thread poool with " + numThreads + " threads!");
-        for (int i = 0; i < WARMUP_COUNT; i++) {
-            LOGGER.info("Running warmup #" + (i + 1));
-            double elapsed = runBenchmark(numThreads, bitSet);
-            LOGGER.info(String.format("Warmup #%s finished in %s ms", i + 1, elapsed));
-        }
-        for (int i = 0; i < numExecutions; i++) {
-            callGC();
-            double elapsed = runBenchmark(numThreads, bitSet);
-            LOGGER.info(() -> String.format("[%s] Executed %s (%s sets executed) inserts in %s ms", bfType, BITSET_SIZE, BITSET_SIZE * NUM_HASH_FUNCTIONS, elapsed));
-        }
-    }
+        BloomFilterConfiguration<String> config = loadConfiguration("config.properties");
+        BloomFilter<String> bf = BloomFilterCreator.createBloomFilter(config);
 
-    private static double runBenchmark(int numThreads, BitSet bitSet) throws Exception {
-//        BitSet bitSet;
-//        if (bfType.equals("guava")) {
-//            bitSet = new GuavaBitsetAdapter(BITSET_SIZE);
-//        } else if (bfType.equals("long")) {
-//            bitSet = new LongBitSet(BITSET_SIZE);
-//        } else if (bfType.equals("atomic")) {
-//            bitSet = new AtomicLongBitSet(BITSET_SIZE);
-//        } else {
-//            throw new Exception();
-//        }
-        long[][] indexes = new long[BITSET_SIZE][];
-        long index = 0;
-        for (int i = 0; i < BITSET_SIZE; i++) {
-            indexes[i] = new long[NUM_HASH_FUNCTIONS];
-            for (int j = 0; j < NUM_HASH_FUNCTIONS; j++) {
-                indexes[i][j] = (index & Long.MAX_VALUE) % BITSET_SIZE;
-                index += 64;
+//        bf.mightContains("BRUH");
+
+        for (int i = 0; i < 1000; i++) {
+            bf.add(i + "");
+        }
+//
+        for (int i = 0; i < 1000; i++) {
+            if (!bf.mightContains(i + "")) {
+                LOGGER.severe("BAD " + i);
             }
         }
-        int amountPerThread = BITSET_SIZE / numThreads;
-        List<Runnable> tasks = new ArrayList<>();
-        for (int i = 0; i < numThreads; i++) {
-            final int threadIndex = i;
-            tasks.add(() -> {
-                for (int j = threadIndex * amountPerThread; j < (threadIndex + 1) * amountPerThread; j++) {
-                    for (int k = 0; k < indexes[j].length; k++) {
-                        bitSet.set(indexes[j][k]);
-                    }
-                }
-            });
-        }
-        List<Thread> workers = new ArrayList<>();
-        for (Runnable task : tasks) {
-            workers.add(new Thread(task));
-        }
+    }
 
-        long start = System.nanoTime();
-        for (Thread worker : workers) {
-            worker.start();
+    private static BloomFilterConfiguration<String> loadConfiguration(String configFilePath) {
+        try (FileInputStream inputStream = new FileInputStream(configFilePath)) {
+            Properties props = new Properties();
+            props.load(inputStream);
+            BloomFilterConfigurationLoader<String> loader = BloomFilterConfigurationLoader.defaultLoader();
+            return loader.loadConfig(props);
+        } catch (FileNotFoundException e) {
+            LOGGER.severe(() -> "Config file not found!");
+            System.exit(1);
+        } catch (IOException e) {
+            LOGGER.severe(() -> "Failed to read config file!");
+            System.exit(1);
+        } catch (InvalidConfigurationException e) {
+            LOGGER.severe(() -> "Configuration was invalid! " + e.getMessage());
+            System.exit(1);
         }
-        for (Thread worker : workers) {
-            worker.join();
+        return null;
+    }
+
+    private static void loadExtensions(JavaExtensionLoader loader) {
+        LOGGER.info(() -> "Trying to load extensions from " + EXTENSIONS_DIRECTORY.getAbsolutePath());
+        if (!EXTENSIONS_DIRECTORY.isDirectory())
+            return;
+        File[] files = EXTENSIONS_DIRECTORY.listFiles();
+        if (files == null)
+            return;
+        for (File file : files) {
+            if (file.getName().endsWith(".jar")) {
+                LOGGER.info(() -> "LOADING: " + file.getName());
+                try {
+                    BloomFilterExtension extension = loader.loadExtension(file);
+                    String name = extension.getProperties().getName();
+                    String version = extension.getProperties().getVersion();
+                    LOGGER.info(() -> "\t> Extension loaded: " + name + " v" + version);
+                    extension.onInit();
+                } catch (ExtensionLoadException e) {
+                    LOGGER.severe(() -> "Extension failed to load: " + e.getMessage());
+                }
+            }
         }
-        long elapsed = System.nanoTime() - start;
-        return elapsed / 1000000.0;
     }
 }

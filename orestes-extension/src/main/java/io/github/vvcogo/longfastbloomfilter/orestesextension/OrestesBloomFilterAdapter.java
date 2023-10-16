@@ -8,6 +8,7 @@ import orestes.bloomfilter.FilterBuilder;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.logging.Logger;
 
 public class OrestesBloomFilterAdapter<T> implements BloomFilter<T> {
 
@@ -26,15 +27,14 @@ public class OrestesBloomFilterAdapter<T> implements BloomFilter<T> {
                             .size(bitSetSize)
                             .hashes(numHashFuncs)
                             .hashFunction((b, m, k) -> {
-                                ByteBuffer buffer = ByteBuffer.allocate(k * Integer.BYTES);
-                                IntBuffer intBuffer = buffer.asIntBuffer();
+                                int[] result = new int[k];
                                 ByteBuffer hashesBuffer = this.config.getHashFunction().hash(b, k, m);
-                                while (hashesBuffer.remaining() > 7) {
+                                for (int i = 0; i < k; i++) {
                                     long value = hashesBuffer.getLong();
                                     int index = (int) value;
-                                    intBuffer.put((index & Integer.MAX_VALUE) % m);
+                                    result[i] = (index & Integer.MAX_VALUE) % m;
                                 }
-                                return intBuffer.array();
+                                return result;
                             })
                             .buildBloomFilter();
     }
