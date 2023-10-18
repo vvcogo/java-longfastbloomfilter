@@ -1,0 +1,58 @@
+{
+    "1e-07": {
+        "longfastbloomfilter-st": 4341416060.8,
+        "longfastbloomfilter-mt": 4492300082.4,
+        "orestes-st": 4684033924.8,
+        "orestes-mt": 4619365541.6,
+        "guava-st": null,
+        "guava-mt": null
+    },
+    "1e-06": {
+        "longfastbloomfilter-st": 4265332964.0,
+        "longfastbloomfilter-mt": 4018159468.0,
+        "orestes-st": 4205556743.2,
+        "orestes-mt": 4286082792.8,
+        "guava-st": 4315968103.2,
+        "guava-mt": 3752118873.2
+    },
+    "1e-05": {
+        "longfastbloomfilter-st": 3879120888.0,
+        "longfastbloomfilter-mt": 4459839053.6,
+        "orestes-st": 4372766344.0,
+        "orestes-mt": 4603516914.4,
+        "guava-st": null,
+        "guava-mt": null
+    },
+    "0.0001": {
+        "longfastbloomfilter-st": 4192078365.6,
+        "longfastbloomfilter-mt": 4242649222.4,
+        "orestes-st": 4149433225.6,
+        "orestes-mt": 4081715894.4,
+        "guava-st": null,
+        "guava-mt": null
+    },
+    "0.001": {
+        "longfastbloomfilter-st": 4056743011.2,
+        "longfastbloomfilter-mt": 3983609575.2,
+        "orestes-st": 4122305162.4,
+        "orestes-mt": 3973525126.4,
+        "guava-st": null,
+        "guava-mt": null
+    },
+    "0.01": {
+        "longfastbloomfilter-st": 4000099713.6,
+        "longfastbloomfilter-mt": 3566793629.6,
+        "orestes-st": 3784478810.4,
+        "orestes-mt": 3846563554.4,
+        "guava-st": null,
+        "guava-mt": null
+    },
+    "0.1": {
+        "longfastbloomfilter-st": 4175291741.6,
+        "longfastbloomfilter-mt": 4081377040.8,
+        "orestes-st": 3992126460.8,
+        "orestes-mt": 4462296276.8,
+        "guava-st": null,
+        "guava-mt": null
+    }
+}

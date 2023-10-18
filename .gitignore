@@ -4,7 +4,6 @@ target/
 !**/src/test/**/target/
 *.log
 extensions/
-scripts_py/
 
 ### IntelliJ IDEA ###
 .idea/
