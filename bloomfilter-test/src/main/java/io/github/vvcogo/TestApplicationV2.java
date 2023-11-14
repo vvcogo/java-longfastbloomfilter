@@ -67,6 +67,8 @@ public class TestApplicationV2 {
         List<String> inserts = FileReader.readFile(insertFile);
         LOGGER.info(() -> "Reading queries file...");
         List<String> queries = FileReader.readFile(queryFile);
+        callGC();
+        long startingMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         BloomFilter<String> bloomFilter = BloomFilterCreator.createBloomFilter(configuration);
 
         for (int i = 1; i <= WARM_UP; i++) {
@@ -77,6 +79,10 @@ public class TestApplicationV2 {
             double elapsedMillis = elapsed / 1000000.0;
             LOGGER.info(String.format("Warmup %s finished in %s ms", i, elapsedMillis));
         }
+
+        callGC();
+        long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() - startingMemory;
+        LOGGER.info("Used memory: " + usedMemory + " bytes.");
 
         for (int i = 1; i <= numExecutions; i++) {
             LOGGER.info("Execution #" + i + ": ");
