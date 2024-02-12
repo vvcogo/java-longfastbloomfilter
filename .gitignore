@@ -43,10 +43,11 @@ build/
 ### Mac OS ###
 .DS_Store
 
-### GNOME FILES ###
+### OTHER FILES ###
 input-genoma.txt
 query-genoma.txt
 arquivo.fastq.4QS
 input.txt
 query.txt
 output.txt
+logs/

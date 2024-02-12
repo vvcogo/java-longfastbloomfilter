@@ -10,11 +10,9 @@
     <packaging>pom</packaging>
     <modules>
         <module>bloomfilter-framework</module>
-        <module>bloomfilter-application</module>
         <module>guava-extension</module>
         <module>orestes-extension</module>
         <module>bloomfilter-test</module>
-        <module>testing-multithread</module>
     </modules>
 
     <properties>

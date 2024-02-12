@@ -1,11 +1,4 @@
 
 # Long Fast Bloom Filter - dev
 
-----
-## Class Diagram (provisional - outdated)
-![class diagram](images/BF_DC.png)
-
-----
-## Bitmap Size Table (provisional - outdated)
-
-![bitmap table](images/bitmap_size_table.png)
+A research project to explore increasing the size of standard bloomfilters available in the market
