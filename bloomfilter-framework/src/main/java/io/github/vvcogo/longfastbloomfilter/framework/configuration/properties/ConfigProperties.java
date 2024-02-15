@@ -8,7 +8,10 @@ public enum ConfigProperties {
     NUMBER_HASH_FUNCTIONS("number-hash-functions"),
     SERIALIZER("serializer"),
     HASH_FUNCTION("hash-function"),
-    BLOOMFILTER_TYPE("bloomfilter-type");
+    BLOOMFILTER_TYPE("bloomfilter-type"),
+    SPEED_OPTIMIZATION("enable-speed-optimization"),
+    MAX_SIZE_CHANGE("max-optimization-size-change")
+    ;
 
     private final String name;
 

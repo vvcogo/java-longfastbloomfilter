@@ -83,6 +83,26 @@ public final class BloomFilterConfiguration<T> implements Serializable {
             HashingAlgorithm hashingAlgorithm = HashFactory.getHashingAlgorithm(properties.getProperty(ConfigProperties.HASH_FUNCTION.getName()));
             String type = properties.getProperty(ConfigProperties.BLOOMFILTER_TYPE.getName());
             Serializer<? super E> serializer = SerializerFactory.createSerializer(properties.getProperty(ConfigProperties.SERIALIZER.getName()));
+            String speedOptimization = ConfigProperties.SPEED_OPTIMIZATION.getName();
+            if (properties.contains(speedOptimization) && properties.getProperty(speedOptimization).equalsIgnoreCase("true")) {
+                double maxSizeChange = 0.2;
+                if (properties.contains(ConfigProperties.MAX_SIZE_CHANGE.getName()))
+                    maxSizeChange = Double.parseDouble(ConfigProperties.MAX_SIZE_CHANGE.getName());
+                long tmpBitSetSize = bitSetSize;
+                long maxChange = (long) (maxSizeChange * bitSetSize + bitSetSize);
+                int tmpK = numbHash-1;
+                while (tmpK > 0) {
+                    // (-k * n) / ln(-p^(1/k) + 1)
+                    tmpBitSetSize = (long) ((-tmpK*expectedElems)/Math.log(-Math.pow(fpp,1/(double)tmpK)+1));
+                    if (tmpBitSetSize < maxChange && tmpBitSetSize > 0) {
+                        bitSetSize = tmpBitSetSize;
+                        fpp = tmpK;
+                    } else {
+                        break;
+                    }
+                    tmpK--;
+                }
+            }
             return new BloomFilterConfiguration<>(bitSetSize, expectedElems, numbHash, fpp, hashingAlgorithm, type, serializer);
         } catch (NumberFormatException | NoSuchMethodException | ClassNotFoundException | InvocationTargetException | InstantiationException |
                  IllegalAccessException e) {
