@@ -14,5 +14,4 @@ public class BitSetSizeProperty extends AbstractOptionalConfigProperty<Long> {
             return BloomFilterCalculations.calculateMinBitSetSize(n,p);
         }));
     }
-
 }
