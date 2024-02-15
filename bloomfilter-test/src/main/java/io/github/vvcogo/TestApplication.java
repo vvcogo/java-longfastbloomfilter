@@ -22,7 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.logging.*;
 
-public class TestApplicationV2 {
+public class TestApplication {
 
     private static final Logger LOGGER = Logger.getLogger("longfastbloomfilter");
     private static final File EXTENSIONS_DIRECTORY = new File("extensions/");
