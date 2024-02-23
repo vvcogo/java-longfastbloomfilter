@@ -76,7 +76,6 @@ f.close()
 def make_plot(typeGraph):
     plt.figure()
     plt.title(f'{typeGraph}_throughput_thread')
-
     file_table = open('table_throughput_threads.csv', 'r')
     lines = file_table.readlines()
 

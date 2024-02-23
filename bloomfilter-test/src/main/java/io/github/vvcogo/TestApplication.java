@@ -27,7 +27,7 @@ public class TestApplication {
     private static final Logger LOGGER = Logger.getLogger("longfastbloomfilter");
     private static final File EXTENSIONS_DIRECTORY = new File("extensions/");
     private static final int NUMBER_GC_CALLS = 10;
-    private static final int WARM_UP = 5;
+    private static final int WARM_UP = 3;
 
     static {
         LOGGER.setUseParentHandlers(false);
@@ -70,6 +70,7 @@ public class TestApplication {
         callGC();
         long startingMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
         BloomFilter<String> bloomFilter = BloomFilterCreator.createBloomFilter(configuration);
+        LOGGER.info(String.format("Finished files loading!"));
 
         for (int i = 1; i <= WARM_UP; i++) {
             LOGGER.info("Executing warmup #" + i);
@@ -80,9 +81,10 @@ public class TestApplication {
             LOGGER.info(String.format("Warmup %s finished in %s ms", i, elapsedMillis));
         }
 
+        bloomFilter = BloomFilterCreator.createBloomFilter(configuration);
         callGC();
         long usedMemory = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory() - startingMemory;
-        LOGGER.info("Used memory: " + usedMemory + " bytes.");
+        LOGGER.info("Used Runtime Memory: " + usedMemory + " bytes.");
 
         for (int i = 1; i <= numExecutions; i++) {
             LOGGER.info("Execution #" + i + ": ");
