@@ -84,9 +84,9 @@ public final class BloomFilterConfiguration<T> implements Serializable {
             String type = properties.getProperty(ConfigProperties.BLOOMFILTER_TYPE.getName());
             Serializer<? super E> serializer = SerializerFactory.createSerializer(properties.getProperty(ConfigProperties.SERIALIZER.getName()));
             String speedOptimization = ConfigProperties.SPEED_OPTIMIZATION.getName();
-            if (properties.contains(speedOptimization) && properties.getProperty(speedOptimization).equalsIgnoreCase("true")) {
+            if (properties.containsKey(speedOptimization) && properties.getProperty(speedOptimization).equalsIgnoreCase("true")) {
                 double maxSizeChange = 0.2;
-                if (properties.contains(ConfigProperties.MAX_SIZE_CHANGE.getName()))
+                if (properties.containsKey(ConfigProperties.MAX_SIZE_CHANGE.getName()))
                     maxSizeChange = Double.parseDouble(ConfigProperties.MAX_SIZE_CHANGE.getName());
                 long tmpBitSetSize = bitSetSize;
                 long maxChange = (long) (maxSizeChange * bitSetSize + bitSetSize);
@@ -96,10 +96,9 @@ public final class BloomFilterConfiguration<T> implements Serializable {
                     tmpBitSetSize = (long) ((-tmpK*expectedElems)/Math.log(-Math.pow(fpp,1/(double)tmpK)+1));
                     if (tmpBitSetSize < maxChange && tmpBitSetSize > 0) {
                         bitSetSize = tmpBitSetSize;
-                        fpp = tmpK;
-                    } else {
+                        numbHash = tmpK;
+                    } else
                         break;
-                    }
                     tmpK--;
                 }
             }
